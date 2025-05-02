@@ -2,7 +2,7 @@ name: Bonda CI/CD Pipeline
 
 on:
   push:
-    branches: [ develop ]  # develop 브랜치에 push가 일어날 때 실행
+    branches: [ main ]  # main 브랜치에 push가 일어날 때 실행
 
 jobs:
   build:
