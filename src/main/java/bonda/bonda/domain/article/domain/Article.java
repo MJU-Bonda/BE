@@ -21,8 +21,10 @@ public class Article extends BaseEntity {
 
     private String title;
 
+    @Column(name = "introduction", columnDefinition = "TEXT")
     private String introduction;
 
+    @Column(name = "content", columnDefinition = "TEXT")
     private String content;
 
     @Enumerated(EnumType.STRING)

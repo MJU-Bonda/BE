@@ -34,8 +34,10 @@ public class Book extends BaseEntity {
 
     private Integer page;
 
+    @Column(name = "introduction", columnDefinition = "TEXT")
     private String introduction;    // 도서 카드용 소개글
 
+    @Column(name = "content", columnDefinition = "TEXT")
     private String content;         // 도서 소개 본문
 
     @Enumerated(EnumType.STRING)

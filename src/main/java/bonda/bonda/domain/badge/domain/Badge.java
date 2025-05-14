@@ -19,6 +19,7 @@ public class Badge extends BaseEntity {
 
     private String name;
 
+    @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
     private String image;
