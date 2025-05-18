@@ -35,6 +35,7 @@ out/
 
 ### YAML File ###
 src/main/resources/application-db.yml
+src/main/resources/application-s3.yml
 
 ### VS Code ###
 .vscode/
