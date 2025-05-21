@@ -7,7 +7,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -104,13 +103,13 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    // [Exception] 인증 에러가 발생한 경우
-    @ExceptionHandler(AuthenticationException.class)
-    protected ResponseEntity<ErrorResponse> handleAuthenticationException(AuthenticationException e) {
-        log.error("handleAuthenticationException", e);
-        final ErrorResponse response = ErrorResponse.of(ErrorCode.NETWORK_AUTHENTICATION_REQUIRED, e.getMessage());
-        return new ResponseEntity<>(response, HttpStatus.NETWORK_AUTHENTICATION_REQUIRED);
-    }
+//    // [Exception] 인증 에러가 발생한 경우
+//    @ExceptionHandler(AuthenticationException.class)
+//    protected ResponseEntity<ErrorResponse> handleAuthenticationException(AuthenticationException e) {
+//        log.error("handleAuthenticationException", e);
+//        final ErrorResponse response = ErrorResponse.of(ErrorCode.NETWORK_AUTHENTICATION_REQUIRED, e.getMessage());
+//        return new ResponseEntity<>(response, HttpStatus.NETWORK_AUTHENTICATION_REQUIRED);
+//    }
 
     // [Exception] 데이터 무결성을 위반한 경우
     @ExceptionHandler(DataIntegrityViolationException.class)
