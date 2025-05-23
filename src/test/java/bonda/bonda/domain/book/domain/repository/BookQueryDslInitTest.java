@@ -19,7 +19,7 @@ public class BookQueryDslInitTest {
         //given
         Book testBook = Book.builder()
                 .title("test")
-                .bookCategory(BookCategory.CATEGORY)
+                .bookCategory(BookCategory.ALL)
                 .build();
         bookRepository.save(testBook);
 

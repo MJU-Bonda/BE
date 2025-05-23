@@ -10,7 +10,6 @@ import java.util.Arrays;
 @Getter
 public enum BookCategory {
 
-    CATEGORY("CATEGORY", "카테고리"),
     ALL("ALL", "전체"),
     POEM("POEM", "시집"),
     NOVEL("NOVEL", "소설"),
@@ -28,6 +27,6 @@ public enum BookCategory {
         if (category == null) return false;
         String upper = category.toUpperCase();
         return Arrays.stream(values())
-                .anyMatch(c -> c.name().equalsIgnoreCase(upper));
+                .anyMatch(c -> c.getKey().equalsIgnoreCase(upper));
     }
 }
