@@ -10,5 +10,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 public class SecurityConfig {
 
     // api 연동 WHITE_LIST
-    private final String[] WHITE_LIST= { "/auth/**", };
+    private final String[] WHITE_LIST= { "/auth/**","/books/**" };
+
 }
