@@ -52,8 +52,6 @@ public class BookCommandServiceImpl implements BookCommandService {
 
             //json 응답 객체 변환
             for (JsonNode item : items) {
-
-
                 BookListDto Listdto = new BookListDto();
                 Listdto.setPublishDate(LocalDate.parse(item.path("pubDate").asText()));
                 Listdto.setImage(item.path("cover").asText());
