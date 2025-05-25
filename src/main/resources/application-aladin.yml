@@ -1,0 +1,5 @@
+aladin:
+  api:
+    ttbKey: ttbml5050501721001
+    bookListBaseUrl: https://www.aladin.co.kr/ttb/api/ItemList.aspx?QueryType=ItemNewAll&start=1&MaxResults=100&SearchTarget=Book&output=js&Sort=MyReviewCount&Version=20131101
+    bookDetailBaseUrl : https://www.aladin.co.kr/ttb/api/ItemLookUp.aspx?&itemIdType=ISBN&OptResult=Packing&output=js&Version=20131101
