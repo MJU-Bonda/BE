@@ -55,7 +55,7 @@ public class BookReadServiceImpl implements BookReadService {
                         .title(book.getTitle())
                         .author(book.getWriter())
                         .imageUrl(book.getImage())
-                        .subject(book.getSubject().getValue())
+                        .subject(book.getSubject() != null ? book.getSubject().getValue() : null)
                         .build())
                 .collect(Collectors.toList());
     }
