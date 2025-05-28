@@ -1,3 +1,3 @@
 spring:
   profiles:
-    active: ["db","s3", "aladin"]
+    active: ["db","s3", "aladin", "jwt"]
