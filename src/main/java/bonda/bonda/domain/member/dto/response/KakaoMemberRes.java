@@ -1,4 +1,4 @@
-package bonda.bonda.domain.auth.dto.response;
+package bonda.bonda.domain.member.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
