@@ -25,7 +25,10 @@ public class SecurityConfig {
     private final RedisUtil redisUtil;
 
     // api 연동 WHITE_LIST
-    private final String[] WHITE_LIST= { "/auth/**","/books/**" };
+    private final String[] WHITE_LIST= {
+            "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html",    // swagger
+            "/auth/**", "/books/**"
+    };
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
