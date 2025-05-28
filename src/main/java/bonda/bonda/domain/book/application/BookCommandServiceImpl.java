@@ -23,7 +23,7 @@ import java.util.List;
 
 @Slf4j
 @Service
-@Transactional
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class BookCommandServiceImpl implements BookCommandService {
     private final BookRepository bookRepository;
@@ -32,6 +32,7 @@ public class BookCommandServiceImpl implements BookCommandService {
     private final RestTemplate restTemplate;
 
 
+    @Transactional
     public SuccessResponse<Message> saveBook(BookSaveReq request) {
         List<Book> bookList = new ArrayList<>();
 
@@ -50,8 +51,8 @@ public class BookCommandServiceImpl implements BookCommandService {
             JsonNode items = root.path("item");
             log.info("Url :"+url);
 
-            //json 응답 객체 변환
             for (JsonNode item : items) {
+                //json 응답 객체 변환
                 BookListDto Listdto = new BookListDto();
                 Listdto.setPublishDate(LocalDate.parse(item.path("pubDate").asText()));
                 Listdto.setImage(item.path("cover").asText());
@@ -63,7 +64,7 @@ public class BookCommandServiceImpl implements BookCommandService {
                 String isbn = item.path("isbn").asText();
 
                 log.info("title :"+ Listdto.getTitle());
-                // 상세 정보 API 요청
+                // 상세 정보 요청 url 설정
                 String detailUrl = String.format(
                         "%s&ItemId=%s&ttbkey=%s",
                         aladinConfig.getDetailBaseUrl(),
@@ -76,14 +77,15 @@ public class BookCommandServiceImpl implements BookCommandService {
                     JsonNode detailRoot = objectMapper.readTree(detailResponse);
                     JsonNode detailItem = detailRoot.path("item").get(0);
 
+                    //json 응답 객체 변환
                     BookDto bookDto = new BookDto();
-                    // 상세 정보 예시: 페이지 수, 설명 등
                     bookDto.setPage(detailItem.path("subInfo").path("itemPage").asInt());
                     bookDto.setWidth(detailItem.path("subInfo").path("packing").path("sizeWidth").asLong());
                     bookDto.setHeight(detailItem.path("subInfo").path("packing").path("sizeHeight").asLong());
                     bookDto.setPage(detailItem.path("subInfo").path("itemPage").asInt());
                     bookDto.setContent(detailItem.path("description").asText());
                     log.info(bookDto.toString());
+
                     //도서 객체 생성
                     Book book = Book.builder()
                             .image(Listdto.getImage())
@@ -104,7 +106,7 @@ public class BookCommandServiceImpl implements BookCommandService {
 
             }
             if (!bookList.isEmpty()) {
-                bookRepository.saveAll(bookList);
+                bookRepository.saveAll(bookList); // DB에 저장
                 return SuccessResponse.of(new Message("도서가 정상적으로 저장되었습니다."));
             } else {
                 return SuccessResponse.of(new Message("저장된 도서가 없습니다."));

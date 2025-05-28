@@ -6,8 +6,6 @@ import bonda.bonda.domain.book.domain.QBook;
 import bonda.bonda.domain.bookcase.QBookcase;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
-import com.querydsl.jpa.JPQLQuery;
-import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -15,92 +13,91 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-
-
 @Repository
 @RequiredArgsConstructor
-public class BookRepositoryImpl implements BookRepositoryCustom{
+public class BookRepositoryImpl implements BookRepositoryCustom {
     private final JPAQueryFactory jpaQueryFactory;
     private final QBook book = QBook.book;
-    QBookcase bookcase = QBookcase.bookcase;
+    private final QBookcase bookcase = QBookcase.bookcase;
 
     @Override
-    public Book queryDslInitTest(String name) { //queryDSL 테스트용 메소드
-        Book testBook = jpaQueryFactory.selectFrom(book).
-                where(book.title.eq(name)).fetchOne();
-        return testBook;
-
+    public Book queryDslInitTest(String name) { //테스트용 메서드
+        return jpaQueryFactory
+                .selectFrom(book)
+                .where(book.title.eq(name))
+                .fetchOne();
     }
 
     @Override
     public Optional<Page<Book>> findBookListByCategory(Pageable pageable, String orderBy, String category) {
         BooleanBuilder predicate = new BooleanBuilder();
-
-        // 카테고리 필터링
-        if (!"ALL".equalsIgnoreCase(category)) {
+        if (!"ALL".equalsIgnoreCase(category)) { //카테고리 조건
             predicate.and(book.bookCategory.eq(BookCategory.valueOf(category.toUpperCase())));
         }
-        // 정렬 조건
-        if ("popularity".equalsIgnoreCase(orderBy)) {
-            return findBooksOrderByPopularity(pageable, predicate);
-        } else {
-            return findBooksOrderByNewest(pageable, predicate);
-        }
+        return Optional.of(fetchBookPage(pageable, predicate, orderBy)); //정렬조건 + 페이징 조건 추가
     }
 
-    // 최신순 정렬 (일반 쿼리)
-    private Optional<Page<Book>> findBooksOrderByNewest(Pageable pageable, BooleanBuilder predicate) {
-        JPAQuery<Book> query = jpaQueryFactory
+    @Override
+    public Optional<Page<Book>> searchBookList(Pageable pageable, String orderBy, String word) {
+        if (word == null || word.isBlank()) { // 빈칸이거나 공백이면 결과 없음 처리
+            return Optional.of(new PageImpl<>(List.of(), pageable, 0));
+        }
+
+        BooleanBuilder predicate = new BooleanBuilder();
+        Arrays.stream(word.trim().split("\\s+")) // 앞뒤 공백 제거 + 공백으로 단어 나누기 [푸른,하늘]
+                .forEach(w -> predicate.and(book.title.containsIgnoreCase(w))); //단어 돌면서 and 조건 추가 == 교집합
+
+        return Optional.of(fetchBookPage(pageable, predicate, orderBy)); //정렬조건 + 페이징 조건 추가
+    }
+
+    // === 내부 공통 메서드 ===
+
+    private Page<Book> fetchBookPage(Pageable pageable, BooleanBuilder predicate, String orderBy) {
+        List<Book> content = "popularity".equalsIgnoreCase(orderBy) // 정렬조건 확인
+                ? fetchBooksByPopularity(pageable, predicate) //popularity 면 인기순 정렬
+                : fetchBooksByNewest(pageable, predicate); // 아니면 최신 순 정렬
+
+        return createPage(content, pageable, predicate); // 페이지 조건 추가
+    }
+
+    private List<Book> fetchBooksByNewest(Pageable pageable, BooleanBuilder predicate) {
+        return jpaQueryFactory  // 책 객체로 받기
                 .selectFrom(book)
                 .where(predicate)
-                .orderBy(book.publishDate.desc(), book.publisher.asc()); // 출판일 내림차순, 출판사 오름차순
-
-        // 페이징 적용
-        List<Book> content = query
+                .orderBy(book.publishDate.desc(), book.publisher.asc()) // 출판일 내림차순, 출판사 오름차순
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
-
-        // 전체 카운트 (페이징용)
-        Long total = jpaQueryFactory
-                .select(book.count())
-                .from(book)
-                .where(predicate)
-                .fetchOne();
-
-        return Optional.of(new PageImpl<>(content, pageable, total != null ? total : 0));
     }
 
-    private Optional<Page<Book>> findBooksOrderByPopularity(Pageable pageable, BooleanBuilder predicate) {
-        JPQLQuery<Tuple> tupleQuery = jpaQueryFactory
-                .select(book, bookcase.count().as("savedCount")) // 저장된 횟수 추가 조회 -> Tuple로 받음
+    private List<Book> fetchBooksByPopularity(Pageable pageable, BooleanBuilder predicate) {
+        List<Tuple> tuples = jpaQueryFactory
+                .select(book, bookcase.count().as("savedCount"))  // 저장된 횟수 추가 조회 -> Tuple로 받음
                 .from(book)
                 .leftJoin(bookcase).on(bookcase.book.eq(book))
                 .where(predicate)
                 .groupBy(book.id)
-                .orderBy(bookcase.count().desc(), book.publisher.asc());
-
-        // 페이징 적용
-        List<Tuple> tuples = tupleQuery
+                .orderBy(bookcase.count().desc(), book.publisher.asc()) // 인기순 내림차순, 출판사 오름차순
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        // Tuple에서 Book 객체만 추출
-        List<Book> content = tuples.stream()
+        return tuples.stream()
                 .map(t -> t.get(book))
                 .toList();
+    }
 
-        // 전체 카운트 (페이징용)
+    private Page<Book> createPage(List<Book> content, Pageable pageable, BooleanBuilder predicate) {
         Long total = jpaQueryFactory
                 .select(book.count())
                 .from(book)
                 .where(predicate)
                 .fetchOne();
 
-        return Optional.of(new PageImpl<>(content, pageable, total != null ? total : 0));
+        return new PageImpl<>(content, pageable, total != null ? total : 0);
     }
 }
