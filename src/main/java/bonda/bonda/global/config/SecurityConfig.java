@@ -14,6 +14,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 
 @RequiredArgsConstructor
 @EnableWebSecurity
@@ -25,7 +26,10 @@ public class SecurityConfig {
     private final RedisUtil redisUtil;
 
     // api 연동 WHITE_LIST
-    private final String[] WHITE_LIST= { "/auth/**","/books/**" };
+    private final String[] WHITE_LIST= {
+            "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html",    // swagger
+            "/auth/**", "/books/**"
+    };
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -39,7 +43,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(WHITE_LIST).permitAll()
                         .anyRequest().authenticated()
-                );
+                )
+                .addFilterBefore(jwtAuthenticationProcessingFilter(), LogoutFilter.class)
+        ;
 
         return http.build();
     }
