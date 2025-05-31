@@ -12,4 +12,6 @@ public interface BookRepositoryCustom {
     Book queryDslInitTest(String name); // QueryDsl 테스트 용 메소드
 
     Optional<Page<Book>> findBookListByCategory(Pageable pageable, String orderBy, String category);
+    Optional<Page<Book>> searchBookList(Pageable pageable, String orderBy, String word);
+
 }

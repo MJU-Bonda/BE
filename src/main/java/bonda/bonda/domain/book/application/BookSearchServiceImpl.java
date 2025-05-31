@@ -1,10 +1,8 @@
 package bonda.bonda.domain.book.application;
 
 import bonda.bonda.domain.book.domain.Book;
-import bonda.bonda.domain.book.domain.BookCategory;
 import bonda.bonda.domain.book.domain.repository.BookRepository;
-import bonda.bonda.domain.book.dto.response.BookListByCategoryRes;
-import bonda.bonda.domain.book.dto.response.BookListRes;
+import bonda.bonda.domain.book.dto.response.*;
 import bonda.bonda.global.common.SuccessResponse;
 import bonda.bonda.global.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
@@ -15,39 +13,29 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static bonda.bonda.domain.book.dto.BookMapper.convertToBookListRes;
-import static bonda.bonda.global.exception.ErrorCode.INVALID_BOOK_CATEGORY;
 import static bonda.bonda.global.exception.ErrorCode.NOT_FOUND_ERROR;
 
-@RequiredArgsConstructor
-@Transactional(readOnly = true)
 @Service
-public class BookReadServiceImpl implements BookReadService {
+@Transactional
+@RequiredArgsConstructor
+public class BookSearchServiceImpl implements BookSearchService {
     private final BookRepository bookRepository;
 
     @Override
-    public SuccessResponse<BookListByCategoryRes> bookListByCategory(Integer page, Integer size, String orderBy, String category) {
-        if(BookCategory.isValid(category) == false) {
-            throw new BusinessException("Invalid book category: " + category, INVALID_BOOK_CATEGORY);
-        }
-
+    public SuccessResponse<SearchBookListRes> searchBookList(Integer page, Integer size, String orderBy, String word) {
         Pageable pageable = PageRequest.of(page, size);
-
-        Page<Book> bookList = bookRepository.findBookListByCategory(pageable, orderBy, category).orElseThrow(() -> new BusinessException(NOT_FOUND_ERROR));
-        //Book 리스트를 bookListRes로 변환
+        Page<Book> bookList = bookRepository.searchBookList(pageable, orderBy, word).orElseThrow(() -> new BusinessException(NOT_FOUND_ERROR));
         List<BookListRes> bookListRes = convertToBookListRes(bookList.getContent());
 
-        return SuccessResponse.of(BookListByCategoryRes.builder()
+        return SuccessResponse.of(SearchBookListRes.builder()
                 .page(page)
                 .total(bookList.getTotalElements())
-                .category(category)
+                .word(word)
                 .orderBy(orderBy)
                 .hasNextPage(bookList.hasNext())
                 .bookList(bookListRes)
                 .build());
     }
-
-
 }
