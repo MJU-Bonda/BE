@@ -5,10 +5,16 @@ import bonda.bonda.domain.book.domain.BookCategory;
 import bonda.bonda.domain.book.domain.repository.BookRepository;
 import bonda.bonda.domain.book.dto.aladin.BookDto;
 import bonda.bonda.domain.book.dto.aladin.BookListDto;
-import bonda.bonda.domain.book.dto.request.BookSaveReq;
+import bonda.bonda.domain.book.dto.request.SaveBookFromAladinReq;
+import bonda.bonda.domain.book.dto.response.SaveBookRes;
+import bonda.bonda.domain.bookcase.Bookcase;
+import bonda.bonda.domain.bookcase.repository.BookcaseRepository;
+import bonda.bonda.domain.member.domain.Member;
+import bonda.bonda.domain.member.domain.repository.MemberRepository;
 import bonda.bonda.global.common.Message;
 import bonda.bonda.global.common.SuccessResponse;
 import bonda.bonda.global.config.AladinConfig;
+import bonda.bonda.global.exception.BusinessException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +27,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import static bonda.bonda.global.exception.ErrorCode.*;
+
 @Slf4j
 @Service
 @Transactional(readOnly = true)
@@ -30,10 +38,12 @@ public class BookCommandServiceImpl implements BookCommandService {
     private final ObjectMapper objectMapper;
     private final AladinConfig aladinConfig;
     private final RestTemplate restTemplate;
+    private final BookcaseRepository bookcaseRepository;
+    private final MemberRepository memberRepository;
 
 
     @Transactional
-    public SuccessResponse<Message> saveBook(BookSaveReq request) {
+    public SuccessResponse<Message> saveBookFromAladin(SaveBookFromAladinReq request) {
         List<Book> bookList = new ArrayList<>();
 
         try {
@@ -120,5 +130,28 @@ public class BookCommandServiceImpl implements BookCommandService {
         }
 
 
+    }
+
+    @Transactional
+    public SuccessResponse<SaveBookRes> saveBook(Member member, Long bookId) {
+        // 멤버 조회 -> 영속 상태로 조회
+        Member persistMember = memberRepository.findByKakaoId(member.getKakaoId()).orElseThrow(() -> new BusinessException(INVALID_MEMBER));
+
+        // 도서 조회
+        Book book = bookRepository.findById(bookId).orElseThrow(() -> new BusinessException(INVALID_BOOK_Id));
+        // 이미 저장한 도서인지 확인
+        if (bookcaseRepository.existsByMemberAndBook(persistMember, book)) {
+            throw new BusinessException(ALREADY_SAVED_BOOK);
+        }
+        // 저장된 도서 생성
+        Bookcase bookcase = new Bookcase(persistMember, book);
+        // 멤버 저장 도서 수 증가 -> 더티 체크
+        persistMember.plusSaveCount();
+        bookcaseRepository.save(bookcase);
+
+
+        return SuccessResponse.of(SaveBookRes.builder()
+                .bookId(bookId)
+                .message(new Message("도서 저장이 완료되었습니다!")).build());
     }
 }
