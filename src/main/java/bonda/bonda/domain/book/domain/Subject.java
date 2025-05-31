@@ -7,6 +7,8 @@ import lombok.Getter;
 @Getter
 public enum Subject {
 
+
+    ALL("ALL", "전체"),
     COOKING("COOKING","요리"),
     SELF_DEVELOPMENT("SELF_DEVELOPMENT","자기계발"),
     TRAVEL("TRAVEL","로컬/여행"),

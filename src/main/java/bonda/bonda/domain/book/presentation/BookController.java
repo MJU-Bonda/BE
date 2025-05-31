@@ -8,6 +8,7 @@ import bonda.bonda.domain.book.dto.response.BookListByCategoryRes;
 import bonda.bonda.domain.book.dto.response.SearchBookListRes;
 import bonda.bonda.global.common.Message;
 import bonda.bonda.global.common.SuccessResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,10 +16,11 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/books")
-public class BookController {
+public class BookController implements BookApi {
     private final BookReadService bookReadService;
     private final BookCommandService bookCommandService;
     private final BookSearchService bookSearchService;
+
     @GetMapping()
     public ResponseEntity<SuccessResponse<BookListByCategoryRes>> getBookListByCategory(
             @RequestParam(defaultValue = "0") int page,
@@ -29,7 +31,7 @@ public class BookController {
     }
 
     @PostMapping("/new")
-    public ResponseEntity<SuccessResponse<Message>> createPost(@RequestBody BookSaveReq postReq) {
+    public ResponseEntity<SuccessResponse<Message>> createPost(@Valid @RequestBody BookSaveReq postReq) {
         return ResponseEntity.ok(bookCommandService.saveBook(postReq));
     }
 
