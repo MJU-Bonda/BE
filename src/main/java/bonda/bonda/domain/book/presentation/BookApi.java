@@ -2,6 +2,7 @@ package bonda.bonda.domain.book.presentation;
 
 import bonda.bonda.domain.book.dto.request.SaveBookFromAladinReq;
 import bonda.bonda.domain.book.dto.response.BookListByCategoryRes;
+import bonda.bonda.domain.book.dto.response.DeleteSaveBookRes;
 import bonda.bonda.domain.book.dto.response.SaveBookRes;
 import bonda.bonda.domain.book.dto.response.SearchBookListRes;
 import bonda.bonda.domain.member.domain.Member;
@@ -118,5 +119,28 @@ public interface BookApi {
             @Parameter(hidden = true) // Swagger에 표시하지 않음 (내부에서 주입되는 로그인 사용자 정보)
             @LoginMember Member member);
 
+
+
+    @Operation(summary = "도서 저장 삭제", description = "사용자가 특정 도서를 저장 목록에서 삭제합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200", description = "도서 저장 삭제 성공",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = DeleteSaveBookRes.class))}
+            ),
+            @ApiResponse(
+                    responseCode = "400", description = "잘못된 요청 (이미 저장된 도서 등)",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorCode.class))}
+            ),
+            @ApiResponse(
+                    responseCode = "401", description = "인증 실패",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorCode.class))}
+            )
+    })
+    @DeleteMapping("/save/{bookId}")
+    public ResponseEntity<SuccessResponse<DeleteSaveBookRes>> deleteBook(
+            @Parameter(description = "도서 ID", example = "123")
+            @PathVariable(value = "bookId") Long bookId,
+            @Parameter(hidden = true) // Swagger에 표시하지 않음 (내부에서 주입되는 로그인 사용자 정보)
+            @LoginMember Member member);
 }
 

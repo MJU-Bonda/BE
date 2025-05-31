@@ -46,4 +46,6 @@ public class Member extends BaseEntity {
     public void plusSaveCount() {
         this.saveCount++;
     }
+
+    public void minusSaveCount() {this.saveCount--;}
 }
