@@ -3,9 +3,12 @@ package bonda.bonda.domain.book.presentation;
 import bonda.bonda.domain.book.application.BookCommandService;
 import bonda.bonda.domain.book.application.BookReadService;
 import bonda.bonda.domain.book.application.BookSearchService;
-import bonda.bonda.domain.book.dto.request.BookSaveReq;
+import bonda.bonda.domain.book.dto.request.SaveBookFromAladinReq;
 import bonda.bonda.domain.book.dto.response.BookListByCategoryRes;
+import bonda.bonda.domain.book.dto.response.SaveBookRes;
 import bonda.bonda.domain.book.dto.response.SearchBookListRes;
+import bonda.bonda.domain.member.domain.Member;
+import bonda.bonda.global.annotation.LoginMember;
 import bonda.bonda.global.common.Message;
 import bonda.bonda.global.common.SuccessResponse;
 import jakarta.validation.Valid;
@@ -31,8 +34,8 @@ public class BookController implements BookApi {
     }
 
     @PostMapping("/new")
-    public ResponseEntity<SuccessResponse<Message>> createPost(@Valid @RequestBody BookSaveReq postReq) {
-        return ResponseEntity.ok(bookCommandService.saveBook(postReq));
+    public ResponseEntity<SuccessResponse<Message>> saveBookFromAladin(@Valid @RequestBody SaveBookFromAladinReq postReq) {
+        return ResponseEntity.ok(bookCommandService.saveBookFromAladin(postReq));
     }
 
     @GetMapping("/search")
@@ -44,4 +47,9 @@ public class BookController implements BookApi {
         return ResponseEntity.ok(bookSearchService.searchBookList(page, size, orderBy, word));
     }
 
+    @PostMapping("/save/{bookId}")
+    public ResponseEntity<SuccessResponse<SaveBookRes>> saveBook(@PathVariable(value = "bookId") Long bookId, @LoginMember Member member) {
+        return ResponseEntity.ok(bookCommandService.saveBook(member, bookId));
+
+    }
 }

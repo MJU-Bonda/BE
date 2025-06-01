@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 @Data
-public class BookSaveReq {
+public class SaveBookFromAladinReq {
     @Schema(type = "String", example = "NOVEL", description = "DB에 적제될 본다 카테고리 입니다.")
     @NotNull
     String category;

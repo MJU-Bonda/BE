@@ -1,8 +1,11 @@
 package bonda.bonda.domain.book.presentation;
 
-import bonda.bonda.domain.book.dto.request.BookSaveReq;
+import bonda.bonda.domain.book.dto.request.SaveBookFromAladinReq;
 import bonda.bonda.domain.book.dto.response.BookListByCategoryRes;
+import bonda.bonda.domain.book.dto.response.SaveBookRes;
 import bonda.bonda.domain.book.dto.response.SearchBookListRes;
+import bonda.bonda.domain.member.domain.Member;
+import bonda.bonda.global.annotation.LoginMember;
 import bonda.bonda.global.common.Message;
 import bonda.bonda.global.common.SuccessResponse;
 import bonda.bonda.global.exception.ErrorCode;
@@ -15,15 +18,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Book API", description = "도서 관련 API입니다.")
 public interface BookApi {
 
-    @Operation(summary = "도서 홈 화면", description = "카테고리별로 도서를 조회합니다.")
+    @Operation(summary = "도서 홈 화면 (카테고리별 조회)", description = "카테고리별로 도서를 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200", description = "카테고리별 도서 조회 성공",
@@ -47,9 +47,8 @@ public interface BookApi {
             @RequestParam(defaultValue = "ALL") String category);
 
 
-
     @Operation(
-            summary = "도서 DB",
+            summary = "도서 DB 저장 (알라딘 api)",
             description = "알라딘 API를 호출하여, 새로운 도서를 등록합니다."
     )
     @ApiResponses(value = {
@@ -63,7 +62,7 @@ public interface BookApi {
             )
     })
     @PostMapping("/new")
-    public ResponseEntity<SuccessResponse<Message>> createPost(@Valid @RequestBody BookSaveReq postReq);
+    public ResponseEntity<SuccessResponse<Message>> saveBookFromAladin(@Valid @RequestBody SaveBookFromAladinReq postReq);
 
 
     @Operation(summary = "도서 검색", description = "키워드로 도서를 검색합니다.")
@@ -90,4 +89,34 @@ public interface BookApi {
 
             @Parameter(description = "검색 키워드", example = "자바")
             @RequestParam String word);
+
+
+
+
+
+
+
+    @Operation(summary = "도서 저장", description = "사용자가 특정 도서를 저장합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200", description = "도서 저장 성공",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = SaveBookRes.class))}
+            ),
+            @ApiResponse(
+                    responseCode = "400", description = "잘못된 요청 (이미 저장된 도서 등)",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorCode.class))}
+            ),
+            @ApiResponse(
+                    responseCode = "401", description = "인증 실패",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorCode.class))}
+            )
+    })
+    @PostMapping("/save/{bookId}")
+    public ResponseEntity<SuccessResponse<SaveBookRes>> saveBook(
+            @Parameter(description = "도서 ID", example = "123")
+            @PathVariable(value = "bookId") Long bookId,
+            @Parameter(hidden = true) // Swagger에 표시하지 않음 (내부에서 주입되는 로그인 사용자 정보)
+            @LoginMember Member member);
+
 }
+

@@ -43,4 +43,7 @@ public class Member extends BaseEntity {
         this.badgeCount = 0;
         this.autoSave = true;
     }
+    public void plusSaveCount() {
+        this.saveCount++;
+    }
 }
