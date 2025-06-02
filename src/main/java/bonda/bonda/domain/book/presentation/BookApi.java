@@ -33,7 +33,7 @@ public interface BookApi {
             )
     })
     @GetMapping()
-    public ResponseEntity<SuccessResponse<BookListByCategoryRes>> getBookListByCategory(
+    ResponseEntity<SuccessResponse<BookListByCategoryRes>> getBookListByCategory(
 
             @Parameter(description = "페이지 번호 (0부터 시작)", example = "0")
             @RequestParam(defaultValue = "0") int page,
@@ -60,7 +60,7 @@ public interface BookApi {
             )
     })
     @PostMapping("/new")
-    public ResponseEntity<SuccessResponse<Message>> saveBookFromAladin(@Valid @RequestBody SaveBookFromAladinReq postReq);
+    ResponseEntity<SuccessResponse<Message>> saveBookFromAladin(@Valid @RequestBody SaveBookFromAladinReq postReq);
 
 
     @Operation(summary = "도서 검색", description = "키워드로 도서를 검색합니다.")
@@ -75,7 +75,7 @@ public interface BookApi {
             )
     })
     @GetMapping("/search")
-    public ResponseEntity<SuccessResponse<SearchBookListRes>> searchBookList(
+    ResponseEntity<SuccessResponse<SearchBookListRes>> searchBookList(
             @Parameter(description = "페이지 번호 (0부터 시작)", example = "0")
             @RequestParam(defaultValue = "0") int page,
 
@@ -110,7 +110,7 @@ public interface BookApi {
             )
     })
     @PostMapping("/save/{bookId}")
-    public ResponseEntity<SuccessResponse<SaveBookRes>> saveBook(
+    ResponseEntity<SuccessResponse<SaveBookRes>> saveBook(
             @Parameter(description = "도서 ID", example = "123")
             @PathVariable(value = "bookId") Long bookId,
             @Parameter(hidden = true) // Swagger에 표시하지 않음 (내부에서 주입되는 로그인 사용자 정보)
@@ -134,7 +134,7 @@ public interface BookApi {
             )
     })
     @DeleteMapping("/save/{bookId}")
-    public ResponseEntity<SuccessResponse<DeleteSaveBookRes>> deleteBook(
+    ResponseEntity<SuccessResponse<DeleteSaveBookRes>> deleteBook(
             @Parameter(description = "도서 ID", example = "123")
             @PathVariable(value = "bookId") Long bookId,
             @Parameter(hidden = true) // Swagger에 표시하지 않음 (내부에서 주입되는 로그인 사용자 정보)
@@ -158,6 +158,6 @@ public interface BookApi {
             )
     })
     @GetMapping("/liked")
-    public ResponseEntity<SuccessResponse<LovedBookListRes>> getLovedBookList(@RequestParam(defaultValue = "ALL") String subject);
+    ResponseEntity<SuccessResponse<LovedBookListRes>> getLovedBookList(@RequestParam(defaultValue = "ALL") String subject);
 }
 

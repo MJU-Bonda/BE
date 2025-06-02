@@ -22,6 +22,7 @@ public class BookController implements BookApi {
     private final BookCommandService bookCommandService;
     private final BookSearchService bookSearchService;
 
+    @Override
     @GetMapping()
     public ResponseEntity<SuccessResponse<BookListByCategoryRes>> getBookListByCategory(
             @RequestParam(defaultValue = "0") int page,
@@ -31,11 +32,13 @@ public class BookController implements BookApi {
         return ResponseEntity.ok(bookReadService.bookListByCategory(page, size, orderBy, category));
     }
 
+    @Override
     @PostMapping("/new")
     public ResponseEntity<SuccessResponse<Message>> saveBookFromAladin(@Valid @RequestBody SaveBookFromAladinReq postReq) {
         return ResponseEntity.ok(bookCommandService.saveBookFromAladin(postReq));
     }
 
+    @Override
     @GetMapping("/search")
     public ResponseEntity<SuccessResponse<SearchBookListRes>> searchBookList(
             @RequestParam(defaultValue = "0") int page,
@@ -45,17 +48,20 @@ public class BookController implements BookApi {
         return ResponseEntity.ok(bookSearchService.searchBookList(page, size, orderBy, word));
     }
 
+    @Override
     @PostMapping("/save/{bookId}")
     public ResponseEntity<SuccessResponse<SaveBookRes>> saveBook(@PathVariable(value = "bookId") Long bookId, @LoginMember Member member) {
         return ResponseEntity.ok(bookCommandService.saveBook(member, bookId));
 
     }
 
+    @Override
     @DeleteMapping("/save/{bookId}")
     public ResponseEntity<SuccessResponse<DeleteSaveBookRes>> deleteBook(@PathVariable(value = "bookId") Long bookId, @LoginMember Member member) {
         return ResponseEntity.ok(bookCommandService.deleteSaveBook(member, bookId));
     }
 
+    @Override
     @GetMapping("/liked")
     public ResponseEntity<SuccessResponse<LovedBookListRes>> getLovedBookList(@RequestParam(defaultValue = "ALL") String subject) {
         return ResponseEntity.ok(bookReadService.getLovedBookList(subject));
