@@ -1,10 +1,7 @@
 package bonda.bonda.domain.book.presentation;
 
 import bonda.bonda.domain.book.dto.request.SaveBookFromAladinReq;
-import bonda.bonda.domain.book.dto.response.BookListByCategoryRes;
-import bonda.bonda.domain.book.dto.response.DeleteSaveBookRes;
-import bonda.bonda.domain.book.dto.response.SaveBookRes;
-import bonda.bonda.domain.book.dto.response.SearchBookListRes;
+import bonda.bonda.domain.book.dto.response.*;
 import bonda.bonda.domain.member.domain.Member;
 import bonda.bonda.global.annotation.LoginMember;
 import bonda.bonda.global.common.Message;
@@ -142,5 +139,25 @@ public interface BookApi {
             @PathVariable(value = "bookId") Long bookId,
             @Parameter(hidden = true) // Swagger에 표시하지 않음 (내부에서 주입되는 로그인 사용자 정보)
             @LoginMember Member member);
+
+
+
+    @Operation(summary = "사랑받는 도서 조회", description = "홈 화면의 요즘 가장 사랑 받는 도서의 목록을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200", description = "도서 조회 성공",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = DeleteSaveBookRes.class))}
+            ),
+            @ApiResponse(
+                    responseCode = "400", description = "잘못된 요청 (잘못된 주제)",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorCode.class))}
+            ),
+            @ApiResponse(
+                    responseCode = "401", description = "인증 실패",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorCode.class))}
+            )
+    })
+    @GetMapping("/liked")
+    public ResponseEntity<SuccessResponse<LovedBookListRes>> getLovedBookList(@RequestParam(defaultValue = "ALL") String subject);
 }
 

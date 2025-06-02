@@ -3,6 +3,8 @@ package bonda.bonda.domain.book.domain;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.util.Arrays;
+
 @AllArgsConstructor
 @Getter
 public enum Subject {
@@ -25,4 +27,11 @@ public enum Subject {
 
     final private String key;
     final private String value;
+
+    public static boolean isValid(String subject) {
+        if (subject == null) return false;
+        String upper = subject.toUpperCase();
+        return Arrays.stream(values())
+                .anyMatch(s -> s.getKey().equalsIgnoreCase(upper));
+    }
 }
