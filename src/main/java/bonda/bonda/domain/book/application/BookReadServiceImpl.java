@@ -70,6 +70,7 @@ public class BookReadServiceImpl implements BookReadService {
     public SuccessResponse<MySavedBookListRes> getMySavedBookList(int page, int size, String orderBy) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Book> bookList = bookRepository.findMySavedBookList(pageable, orderBy);
+
         List<BookListRes> bookListRes = convertToBookListRes(bookList.getContent());
         return SuccessResponse.of(MySavedBookListRes.builder()
                 .page(page)
