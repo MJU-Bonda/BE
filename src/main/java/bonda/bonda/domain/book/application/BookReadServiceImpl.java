@@ -5,6 +5,7 @@ import bonda.bonda.domain.book.domain.BookCategory;
 import bonda.bonda.domain.book.domain.repository.BookRepository;
 import bonda.bonda.domain.book.dto.response.BookListByCategoryRes;
 import bonda.bonda.domain.book.dto.response.BookListRes;
+import bonda.bonda.domain.book.dto.response.MySavedBookListRes;
 import bonda.bonda.global.common.SuccessResponse;
 import bonda.bonda.global.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +44,20 @@ public class BookReadServiceImpl implements BookReadService {
                 .page(page)
                 .total(bookList.getTotalElements())
                 .category(category)
+                .orderBy(orderBy)
+                .hasNextPage(bookList.hasNext())
+                .bookList(bookListRes)
+                .build());
+    }
+
+    @Override
+    public SuccessResponse<MySavedBookListRes> getMySavedBookList(int page, int size, String orderBy) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Book> bookList = bookRepository.findMySavedBookList(pageable, orderBy);
+        List<BookListRes> bookListRes = convertToBookListRes(bookList.getContent());
+        return SuccessResponse.of(MySavedBookListRes.builder()
+                .page(page)
+                .total(bookList.getTotalElements())
                 .orderBy(orderBy)
                 .hasNextPage(bookList.hasNext())
                 .bookList(bookListRes)

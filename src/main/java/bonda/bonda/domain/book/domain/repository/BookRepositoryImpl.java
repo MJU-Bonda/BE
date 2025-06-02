@@ -54,12 +54,33 @@ public class BookRepositoryImpl implements BookRepositoryCustom {
         return Optional.of(fetchBookPage(pageable, predicate, orderBy)); //정렬조건 + 페이징 조건 추가
     }
 
+    @Override
+    public Page<Book> findMySavedBookList(Pageable pageable, String orderBy) {
+        BooleanBuilder predicate = new BooleanBuilder();
+        return fetchBookPage(pageable, predicate, orderBy);
+    }
+
+
+
     // === 내부 공통 메서드 ===
 
     private Page<Book> fetchBookPage(Pageable pageable, BooleanBuilder predicate, String orderBy) {
-        List<Book> content = "popularity".equalsIgnoreCase(orderBy) // 정렬조건 확인
-                ? fetchBooksByPopularity(pageable, predicate) //popularity 면 인기순 정렬
-                : fetchBooksByNewest(pageable, predicate); // 아니면 최신 순 정렬
+        List<Book> content;
+        switch (orderBy.toLowerCase()) {
+            case "popularity":
+                content = fetchBooksByPopularity(pageable, predicate);
+                break;
+            case "newestbypublish":
+                content = fetchBooksByNewestByPublish(pageable, predicate);
+                break;
+            case "newestbysave":
+                content = fetchBooksByNewestBySave(pageable, predicate);
+                break;
+            default:
+                content = fetchBooksByNewest(pageable, predicate); // 기본값
+                break;
+        }
+
 
         return createPage(content, pageable, predicate); // 페이지 조건 추가
     }

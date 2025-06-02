@@ -4,10 +4,7 @@ import bonda.bonda.domain.book.application.BookCommandService;
 import bonda.bonda.domain.book.application.BookReadService;
 import bonda.bonda.domain.book.application.BookSearchService;
 import bonda.bonda.domain.book.dto.request.SaveBookFromAladinReq;
-import bonda.bonda.domain.book.dto.response.BookListByCategoryRes;
-import bonda.bonda.domain.book.dto.response.DeleteSaveBookRes;
-import bonda.bonda.domain.book.dto.response.SaveBookRes;
-import bonda.bonda.domain.book.dto.response.SearchBookListRes;
+import bonda.bonda.domain.book.dto.response.*;
 import bonda.bonda.domain.member.domain.Member;
 import bonda.bonda.global.annotation.LoginMember;
 import bonda.bonda.global.common.Message;
@@ -57,5 +54,13 @@ public class BookController implements BookApi {
     @DeleteMapping("/save/{bookId}")
     public ResponseEntity<SuccessResponse<DeleteSaveBookRes>> deleteBook(@PathVariable(value = "bookId") Long bookId, @LoginMember Member member) {
         return ResponseEntity.ok(bookCommandService.deleteSaveBook(member, bookId));
+    }
+
+    @GetMapping("/my-save")
+    public ResponseEntity<SuccessResponse<MySavedBookListRes>> getMySavedBookListRes(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "24") int size,
+            @RequestParam(defaultValue = "popularity") String orderBy) {
+        return ResponseEntity.ok(bookReadService.getMySavedBookList(page, size, orderBy));
     }
 }

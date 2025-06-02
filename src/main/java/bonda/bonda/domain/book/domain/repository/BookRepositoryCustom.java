@@ -14,4 +14,5 @@ public interface BookRepositoryCustom {
     Optional<Page<Book>> findBookListByCategory(Pageable pageable, String orderBy, String category);
     Optional<Page<Book>> searchBookList(Pageable pageable, String orderBy, String word);
 
+    Page<Book> findMySavedBookList(Pageable pageable, String orderBy);
 }
