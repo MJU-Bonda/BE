@@ -96,6 +96,7 @@ public enum ErrorCode {
     FILE_DELETE_FAILED(500, "B994", "S3 버킷에 파일(이미지) 삭제를 실패했습니다."),
 
     INVALID_BOOK_CATEGORY(400, "BC001", "유효하지 않은 책 카테고리입니다."),
+    INVALID_BOOK_SUBJECT(400, "BS001", "유효하지 않은 책 주제입니다."),
 
     INVALID_BOOK_Id(400, "BC002", "유효하지 않은 책 아이디."),
 
