@@ -67,11 +67,13 @@ public class BookController implements BookApi {
         return ResponseEntity.ok(bookReadService.getLovedBookList(subject));
     }
 
+    @Override
     @GetMapping("/my-save")
     public ResponseEntity<SuccessResponse<MySavedBookListRes>> getMySavedBookListRes(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "24") int size,
-            @RequestParam(defaultValue = "popularity") String orderBy) {
-        return ResponseEntity.ok(bookReadService.getMySavedBookList(page, size, orderBy));
+            @RequestParam(defaultValue = "recentlySaved") String orderBy,
+            @LoginMember Member member) {
+        return ResponseEntity.ok(bookReadService.getMySavedBookList(page, size, orderBy, member));
     }
 }
