@@ -3,13 +3,16 @@ package bonda.bonda.domain.book.domain.repository;
 import bonda.bonda.domain.book.domain.Book;
 import bonda.bonda.domain.book.domain.BookCategory;
 import bonda.bonda.domain.book.domain.QBook;
+import bonda.bonda.domain.book.domain.Subject;
 import bonda.bonda.domain.bookcase.QBookcase;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
@@ -54,7 +57,22 @@ public class BookRepositoryImpl implements BookRepositoryCustom {
         return Optional.of(fetchBookPage(pageable, predicate, orderBy)); //정렬조건 + 페이징 조건 추가
     }
 
+    @Override
+    public List<Book> findLovedBookList(String subject) {
+        BooleanBuilder predicate = new BooleanBuilder();
+        //주제 필터 조건
+        if (!"ALL".equalsIgnoreCase(subject)) { //카테고리 조건
+            predicate.and(book.subject.eq(Subject.valueOf(subject.toUpperCase())));
+        }
+        //페이지 조건 (상위 3개)
+        Pageable pageable = PageRequest.of(0, 3);
+        return fetchBooksByPopularityThenRandom(pageable, predicate);
+    }
+
+
     // === 내부 공통 메서드 ===
+
+    // == 정렬 기준 설정 ==
 
     private Page<Book> fetchBookPage(Pageable pageable, BooleanBuilder predicate, String orderBy) {
         List<Book> content = "popularity".equalsIgnoreCase(orderBy) // 정렬조건 확인
@@ -90,6 +108,26 @@ public class BookRepositoryImpl implements BookRepositoryCustom {
                 .map(t -> t.get(book))
                 .toList();
     }
+
+    private List<Book> fetchBooksByPopularityThenRandom(Pageable pageable, BooleanBuilder predicate) {
+        List<Tuple> tuples = jpaQueryFactory
+                .select(book, bookcase.count().as("savedCount"))
+                .from(book)
+                .leftJoin(bookcase).on(bookcase.book.eq(book))
+                .where(predicate)
+                .groupBy(book.id)
+                .orderBy(bookcase.count().desc(), //인기 순 정렬
+                        Expressions.numberTemplate(Double.class, "rand()").asc()) // 같으면 랜덤 정렬
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        return tuples.stream()
+                .map(t -> t.get(book))
+                .toList();
+    }
+
+    // == 페이지 기준 설정 ==
 
     private Page<Book> createPage(List<Book> content, Pageable pageable, BooleanBuilder predicate) {
         Long total = jpaQueryFactory

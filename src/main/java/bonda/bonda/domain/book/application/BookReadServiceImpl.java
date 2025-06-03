@@ -2,9 +2,12 @@ package bonda.bonda.domain.book.application;
 
 import bonda.bonda.domain.book.domain.Book;
 import bonda.bonda.domain.book.domain.BookCategory;
+import bonda.bonda.domain.book.domain.Subject;
 import bonda.bonda.domain.book.domain.repository.BookRepository;
 import bonda.bonda.domain.book.dto.response.BookListByCategoryRes;
 import bonda.bonda.domain.book.dto.response.BookListRes;
+import bonda.bonda.domain.book.dto.response.LovedBookListRes;
+import bonda.bonda.domain.book.dto.response.SearchBookListRes;
 import bonda.bonda.global.common.SuccessResponse;
 import bonda.bonda.global.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
@@ -18,8 +21,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static bonda.bonda.domain.book.dto.BookMapper.convertToBookListRes;
-import static bonda.bonda.global.exception.ErrorCode.INVALID_BOOK_CATEGORY;
-import static bonda.bonda.global.exception.ErrorCode.NOT_FOUND_ERROR;
+import static bonda.bonda.global.exception.ErrorCode.*;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -49,5 +51,19 @@ public class BookReadServiceImpl implements BookReadService {
                 .build());
     }
 
-
+    @Override
+    public SuccessResponse<LovedBookListRes> getLovedBookList(String subject) {
+        // 입력받은 주제 검증
+        if (Subject.isValid(subject) == false) {
+            throw new BusinessException("Invalid book subject: " + subject, INVALID_BOOK_SUBJECT);
+        };
+        List<Book> lovedBookList = bookRepository.findLovedBookList(subject);
+        List<BookListRes> bookListRes = convertToBookListRes(lovedBookList);
+        return SuccessResponse.of(LovedBookListRes.builder()
+                .bookList(bookListRes)
+                .subject(subject)
+                .build());
+    }
 }
+
+
