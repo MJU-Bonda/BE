@@ -1,17 +1,25 @@
 package bonda.bonda.domain.auth.application;
 
 import bonda.bonda.domain.auth.dto.request.LoginReq;
+import bonda.bonda.domain.auth.dto.response.ReissueRes;
 import bonda.bonda.domain.member.dto.response.KakaoMemberRes;
 import bonda.bonda.domain.auth.dto.response.LoginRes;
 import bonda.bonda.domain.member.domain.Member;
 import bonda.bonda.domain.member.domain.repository.MemberRepository;
 import bonda.bonda.global.common.SuccessResponse;
+import bonda.bonda.global.exception.BusinessException;
+import bonda.bonda.global.exception.ErrorCode;
 import bonda.bonda.global.security.jwt.JwtTokenProvider;
 import bonda.bonda.infrastructure.redis.RedisUtil;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.exceptions.TokenExpiredException;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Instant;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -64,5 +72,24 @@ public class AuthService {
         memberRepository.save(member);
 
         return member;
+    }
+
+    public SuccessResponse<ReissueRes> reissue(String refreshToken) {
+        DecodedJWT decodedJWT = JWT.decode(refreshToken);
+        Instant expireAt = decodedJWT.getExpiresAt().toInstant();
+        if (!jwtTokenProvider.isTokenValid(refreshToken))
+            throw new TokenExpiredException("유효하지 않은 refreshToken 입니다.", expireAt);
+
+        String nickname = redisUtil.getData(RT_PREFIX + refreshToken);
+        Member member = memberRepository.findByNickname(nickname)
+                .orElseThrow(() -> new BusinessException(ErrorCode.UNAUTHORIZED_ERROR));
+
+        String accesstoken = jwtTokenProvider.createAccessToken(member);
+
+        ReissueRes reissueRes = ReissueRes.builder()
+                .accessToken(accesstoken)
+                .build();
+
+        return SuccessResponse.of(reissueRes);
     }
 }
