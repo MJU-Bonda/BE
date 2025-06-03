@@ -34,7 +34,6 @@ public interface BookApi {
     })
     @GetMapping()
     ResponseEntity<SuccessResponse<BookListByCategoryRes>> getBookListByCategory(
-
             @Parameter(description = "페이지 번호 (0부터 시작)", example = "0")
             @RequestParam(defaultValue = "0") int page,
             @Parameter(description = "페이지당 항목 수", example = "24")
@@ -43,6 +42,7 @@ public interface BookApi {
             @RequestParam(defaultValue = "popularity") String orderBy,
             @Parameter(description = "카테고리명 (예: ALL, POEM, NOVEL 등)", example = "ALL")
             @RequestParam(defaultValue = "ALL") String category);
+
 
 
     @Operation(
@@ -61,6 +61,7 @@ public interface BookApi {
     })
     @PostMapping("/new")
     ResponseEntity<SuccessResponse<Message>> saveBookFromAladin(@Valid @RequestBody SaveBookFromAladinReq postReq);
+
 
 
     @Operation(summary = "도서 검색", description = "키워드로 도서를 검색합니다.")
@@ -87,10 +88,6 @@ public interface BookApi {
 
             @Parameter(description = "검색 키워드", example = "자바")
             @RequestParam String word);
-
-
-
-
 
 
 
@@ -159,5 +156,36 @@ public interface BookApi {
     })
     @GetMapping("/liked")
     ResponseEntity<SuccessResponse<LovedBookListRes>> getLovedBookList(@RequestParam(defaultValue = "ALL") String subject);
+
+
+
+    @Operation(summary = "저장한 도서 목록 조회", description = "저장한 도서 목록을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200", description = "도서 조회 성공",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = DeleteSaveBookRes.class))}
+            ),
+            @ApiResponse(
+                    responseCode = "401", description = "인증 실패",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorCode.class))}
+            )
+    })
+    @GetMapping("/my-save")
+    ResponseEntity<SuccessResponse<MySavedBookListRes>> getMySavedBookListRes(
+            @Parameter(description = "페이지 번호 (0부터 시작)", example = "0")
+            @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "페이지당 항목 수", example = "24")
+            @RequestParam(defaultValue = "24") int size,
+            @Parameter(description = "정렬 기준 (예: recentlysaved, title)", example = "recentlysaved")
+            @RequestParam(defaultValue = "recentlysaved") String orderBy,
+            @Parameter(hidden = true) // Swagger에 표시하지 않음 (내부에서 주입되는 로그인 사용자 정보)
+            @LoginMember Member member);
+
+
+
+
+
+
+
 }
 
