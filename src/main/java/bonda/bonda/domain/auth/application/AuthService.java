@@ -6,8 +6,8 @@ import bonda.bonda.domain.member.dto.response.KakaoMemberRes;
 import bonda.bonda.domain.auth.dto.response.LoginRes;
 import bonda.bonda.domain.member.domain.Member;
 import bonda.bonda.domain.member.domain.repository.MemberRepository;
+import bonda.bonda.domain.member.exception.MemberNotFoundException;
 import bonda.bonda.global.common.SuccessResponse;
-import bonda.bonda.global.exception.BusinessException;
 import bonda.bonda.global.exception.ErrorCode;
 import bonda.bonda.global.security.jwt.JwtTokenProvider;
 import bonda.bonda.infrastructure.redis.RedisUtil;
@@ -82,12 +82,12 @@ public class AuthService {
 
         String nickname = redisUtil.getData(RT_PREFIX + refreshToken);
         Member member = memberRepository.findByNickname(nickname)
-                .orElseThrow(() -> new BusinessException(ErrorCode.UNAUTHORIZED_ERROR));
+                .orElseThrow(() -> new MemberNotFoundException(nickname + "을 가진 유저를 찾을 수 없습니다.", ErrorCode.NOT_FOUND_ERROR));
 
-        String accesstoken = jwtTokenProvider.createAccessToken(member);
+        String accessToken = jwtTokenProvider.createAccessToken(member);
 
         ReissueRes reissueRes = ReissueRes.builder()
-                .accessToken(accesstoken)
+                .accessToken(accessToken)
                 .build();
 
         return SuccessResponse.of(reissueRes);
