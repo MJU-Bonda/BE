@@ -5,8 +5,6 @@ import bonda.bonda.domain.auth.dto.request.LoginReq;
 import bonda.bonda.domain.auth.dto.request.ReissueReq;
 import bonda.bonda.domain.auth.dto.response.LoginRes;
 import bonda.bonda.domain.auth.dto.response.ReissueRes;
-import bonda.bonda.domain.member.domain.Member;
-import bonda.bonda.global.annotation.LoginMember;
 import bonda.bonda.global.common.SuccessResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

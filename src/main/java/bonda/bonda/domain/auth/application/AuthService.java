@@ -6,20 +6,14 @@ import bonda.bonda.domain.member.dto.response.KakaoMemberRes;
 import bonda.bonda.domain.auth.dto.response.LoginRes;
 import bonda.bonda.domain.member.domain.Member;
 import bonda.bonda.domain.member.domain.repository.MemberRepository;
-import bonda.bonda.domain.member.exception.MemberNotFoundException;
 import bonda.bonda.global.common.SuccessResponse;
-import bonda.bonda.global.exception.ErrorCode;
 import bonda.bonda.global.security.jwt.JwtTokenProvider;
 import bonda.bonda.infrastructure.redis.RedisUtil;
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.exceptions.TokenExpiredException;
-import com.auth0.jwt.interfaces.DecodedJWT;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Instant;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -75,14 +69,12 @@ public class AuthService {
     }
 
     public SuccessResponse<ReissueRes> reissue(String refreshToken) {
-        DecodedJWT decodedJWT = JWT.decode(refreshToken);
-        Instant expireAt = decodedJWT.getExpiresAt().toInstant();
         if (!jwtTokenProvider.isTokenValid(refreshToken))
-            throw new TokenExpiredException("유효하지 않은 refreshToken 입니다.", expireAt);
+            throw new BadCredentialsException("유효하지 않은 refreshToken 입니다.");
 
         String nickname = redisUtil.getData(RT_PREFIX + refreshToken);
         Member member = memberRepository.findByNickname(nickname)
-                .orElseThrow(() -> new MemberNotFoundException(nickname + "을 가진 유저를 찾을 수 없습니다.", ErrorCode.NOT_FOUND_ERROR));
+                .orElseThrow(() -> new BadCredentialsException(nickname + "을 가진 유저를 찾을 수 없습니다. 다시 로그인해주세요."));
 
         String accessToken = jwtTokenProvider.createAccessToken(member);
 
