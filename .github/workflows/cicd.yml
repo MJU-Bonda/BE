@@ -21,6 +21,10 @@ jobs:
         run: |
           cd ./src/main/resources
           echo "${{ secrets.APPLICATION_YML }}" > ./application.yml
+          echo "${{ secrets.APPLICATION_DB_YML }}" > application-db.yml
+          echo "${{ secrets.APPLICATION_S3_YML }}" > application-s3.yml
+          echo "${{ secrets.APPLICATION_ALADIN_YML }}" > application-aladin.yml
+          echo "${{ secrets.APPLICATION_JWT_YML }}" > application-jwt.yml
         shell: bash
 
       - name: Grant execute permission for gradlew  # gradlew 실행 권한 부여
