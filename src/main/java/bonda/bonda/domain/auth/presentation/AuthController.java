@@ -27,6 +27,7 @@ public class AuthController implements AuthApi {
         return ResponseEntity.ok(authService.signUpOrLogin(loginReq));
     }
 
+    @Override
     @PostMapping("/reissue")
     public ResponseEntity<SuccessResponse<ReissueRes>> reissueToken(@Valid @RequestBody ReissueReq reissueReq) {
         String refreshToken = reissueReq.getRefreshToken();
