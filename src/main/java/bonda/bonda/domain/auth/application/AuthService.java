@@ -45,7 +45,7 @@ public class AuthService {
         String accessToken = jwtTokenProvider.createAccessToken(member);      // AccessToken 생성
         String refreshToken = jwtTokenProvider.createRefreshToken();          // RefreshToken 생성
 
-        redisUtil.setDataExpire(RT_PREFIX + refreshToken, member.getNickname(), refreshExpiration);
+        redisUtil.setDataExpire(RT_PREFIX + refreshToken, member.getKakaoId(), refreshExpiration);
 
         LoginRes loginRes = LoginRes.builder()
                 .accessToken(accessToken)
@@ -72,9 +72,9 @@ public class AuthService {
         if (!jwtTokenProvider.isTokenValid(refreshToken))
             throw new BadCredentialsException("유효하지 않은 refreshToken 입니다.");
 
-        String nickname = redisUtil.getData(RT_PREFIX + refreshToken);
-        Member member = memberRepository.findByNickname(nickname)
-                .orElseThrow(() -> new BadCredentialsException(nickname + "을 가진 유저를 찾을 수 없습니다. 다시 로그인해주세요."));
+        String kakaoId = redisUtil.getData(RT_PREFIX + refreshToken);
+        Member member = memberRepository.findByKakaoId(kakaoId)
+                .orElseThrow(() -> new BadCredentialsException("카카오 아이다가 다릅니다. 다시 로그인해주세요."));
 
         String accessToken = jwtTokenProvider.createAccessToken(member);
 
