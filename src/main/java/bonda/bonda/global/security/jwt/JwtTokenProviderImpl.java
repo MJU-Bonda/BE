@@ -48,7 +48,7 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
 
     private static final String ACCESS_TOKEN_SUBJECT = "AccessToken";
     private static final String REFRESH_TOKEN_SUBJECT = "RefreshToken";
-    private static final String USERNAME_CLAIM = "nickname";
+    private static final String KAKAOID_CLAIM = "kakaoId";
     private static final String USERID_CLAIM = "id";
     private static final String BEARER = "Bearer ";
 
@@ -59,7 +59,7 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
                 .withSubject(ACCESS_TOKEN_SUBJECT)
                 .withExpiresAt(new Date(System.currentTimeMillis() + accessExpiration * 1000))
                 .withClaim(USERID_CLAIM, member.getId())
-                .withClaim(USERNAME_CLAIM, member.getNickname())
+                .withClaim(KAKAOID_CLAIM, member.getKakaoId())
                 .sign(Algorithm.HMAC512(secret));
     }
 

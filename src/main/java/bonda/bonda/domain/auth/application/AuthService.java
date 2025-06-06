@@ -1,6 +1,7 @@
 package bonda.bonda.domain.auth.application;
 
 import bonda.bonda.domain.auth.dto.request.LoginReq;
+import bonda.bonda.domain.auth.dto.response.ReissueRes;
 import bonda.bonda.domain.member.dto.response.KakaoMemberRes;
 import bonda.bonda.domain.auth.dto.response.LoginRes;
 import bonda.bonda.domain.member.domain.Member;
@@ -10,6 +11,7 @@ import bonda.bonda.global.security.jwt.JwtTokenProvider;
 import bonda.bonda.infrastructure.redis.RedisUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,7 +45,7 @@ public class AuthService {
         String accessToken = jwtTokenProvider.createAccessToken(member);      // AccessToken 생성
         String refreshToken = jwtTokenProvider.createRefreshToken();          // RefreshToken 생성
 
-        redisUtil.setDataExpire(RT_PREFIX + refreshToken, member.getNickname(), refreshExpiration);
+        redisUtil.setDataExpire(RT_PREFIX + refreshToken, member.getKakaoId(), refreshExpiration);
 
         LoginRes loginRes = LoginRes.builder()
                 .accessToken(accessToken)
@@ -64,5 +66,22 @@ public class AuthService {
         memberRepository.save(member);
 
         return member;
+    }
+
+    public SuccessResponse<ReissueRes> reissue(String refreshToken) {
+        if (!jwtTokenProvider.isTokenValid(refreshToken))
+            throw new BadCredentialsException("유효하지 않은 refreshToken 입니다.");
+
+        String kakaoId = redisUtil.getData(RT_PREFIX + refreshToken);
+        Member member = memberRepository.findByKakaoId(kakaoId)
+                .orElseThrow(() -> new BadCredentialsException("카카오 아이다가 다릅니다. 다시 로그인해주세요."));
+
+        String accessToken = jwtTokenProvider.createAccessToken(member);
+
+        ReissueRes reissueRes = ReissueRes.builder()
+                .accessToken(accessToken)
+                .build();
+
+        return SuccessResponse.of(reissueRes);
     }
 }
