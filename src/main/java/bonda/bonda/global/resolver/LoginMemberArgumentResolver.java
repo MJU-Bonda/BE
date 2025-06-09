@@ -3,6 +3,7 @@ package bonda.bonda.global.resolver;
 import bonda.bonda.domain.member.domain.Member;
 import bonda.bonda.global.annotation.LoginMember;
 import org.springframework.core.MethodParameter;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -24,7 +25,7 @@ public class LoginMemberArgumentResolver implements HandlerMethodArgumentResolve
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null || authentication.getPrincipal().equals("anonymousUser")) {
-            throw new IllegalStateException("로그인 정보가 없습니다.");
+            throw new BadCredentialsException("로그인 정보가 없습니다.");
         }
 
         return (Member) authentication.getPrincipal();
