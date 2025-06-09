@@ -6,6 +6,7 @@ import bonda.bonda.global.annotation.LoginMember;
 import bonda.bonda.global.common.Message;
 import bonda.bonda.global.common.SuccessResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,11 +17,12 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/members")
-public class MemberController {
+public class MemberController implements MemberApi {
 
     private final MemberService memberService;
 
-    @PutMapping("/update/nickname-image")
+    @Override
+    @PutMapping(value = "/update/nickname-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<SuccessResponse<Message>> updateNicknameAndProfileImage(@LoginMember Member member,
                                                                                   @RequestPart(required = false) String nickname,
                                                                                   @RequestPart(required = false) MultipartFile profileImage) {
