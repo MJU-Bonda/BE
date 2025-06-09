@@ -43,9 +43,18 @@ public class Member extends BaseEntity {
         this.badgeCount = 0;
         this.autoSave = true;
     }
+
     public void plusSaveCount() {
         this.saveCount++;
     }
 
     public void minusSaveCount() {this.saveCount--;}
+
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public void updateProfileImage(String profileImage) {
+        this.profileImage = profileImage;
+    }
 }
