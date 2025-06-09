@@ -19,7 +19,7 @@ public class MemberController implements MemberApi {
 
     private final MemberService memberService;
 
-    @GetMapping("/myPage")
+    @GetMapping("/my-page")
     public ResponseEntity<SuccessResponse<MyPageInfoRes>> getMyPageInfo(@LoginMember Member member) {
         Long memberId = member.getId();
         return ResponseEntity.ok(memberService.getMyPageInfo(memberId));
