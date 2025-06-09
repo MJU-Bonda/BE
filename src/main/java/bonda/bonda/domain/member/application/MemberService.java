@@ -2,6 +2,8 @@ package bonda.bonda.domain.member.application;
 
 import bonda.bonda.domain.member.domain.Member;
 import bonda.bonda.domain.member.domain.repository.MemberRepository;
+import bonda.bonda.domain.member.dto.response.MyPageInfoRes;
+import bonda.bonda.global.annotation.LoginMember;
 import bonda.bonda.global.common.Message;
 import bonda.bonda.global.common.SuccessResponse;
 import bonda.bonda.global.common.aws.S3Service;
@@ -20,6 +22,20 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
     private final S3Service s3Service;
+
+    public SuccessResponse<MyPageInfoRes> getMyPageInfo(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new BadCredentialsException("해당하는 멤버를 찾을 수 없습니다."));
+
+        MyPageInfoRes myPageInfoRes = MyPageInfoRes.builder()
+                .nickname(member.getNickname())
+                .profileImage(member.getProfileImage())
+                .savedBookCount(member.getSaveCount())
+                .badgeCount(member.getBadgeCount())
+                .build();
+
+        return SuccessResponse.of(myPageInfoRes);
+    }
 
     @Transactional
     public SuccessResponse<Message> updateNicknameAndProfileImage(Long memberId, String nickname, MultipartFile profileImage) {
