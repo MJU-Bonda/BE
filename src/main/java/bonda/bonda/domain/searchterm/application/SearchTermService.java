@@ -44,4 +44,18 @@ public class SearchTermService {
 
         return SuccessResponse.of(message);
     }
+
+    @Transactional
+    public SuccessResponse<RecentSearchRes> getRecentSearchTerms(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new BadCredentialsException("해당 아이디를 가진 멤버가 없습니다."));
+        List<String> searchTermList = redisUtil.getList(RS_PREFIX + memberId);
+
+        RecentSearchRes recentSearchRes = RecentSearchRes.builder()
+                .recentSearchTermList(searchTermList)
+                .autoSave(member.getAutoSave())
+                .build();
+
+        return SuccessResponse.of(recentSearchRes);
+    }
 }
