@@ -7,6 +7,7 @@ import bonda.bonda.global.common.Message;
 import bonda.bonda.global.common.SuccessResponse;
 import bonda.bonda.infrastructure.redis.RedisListUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +17,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @Service
+@Slf4j
 public class SearchTermService {
 
     private static final Integer MAX_RECENT_SEARCH_TERMS = 5;
@@ -26,26 +28,17 @@ public class SearchTermService {
     private final RedisListUtil redisUtil;
 
     @Transactional
-    public SuccessResponse<Message> saveSearchTerm(Member member, String searchTerm) {
-        Message message;
-
+    public void saveSearchTerm(Member member, String searchTerm) {
         if(!member.getAutoSave()){
-            message = Message.builder()
-                    .message("자동 저장이 꺼져 있어 검색어가 저장되지 않습니다.")
-                    .build();
-            return SuccessResponse.of(message);
+            log.info("자동 저장 OFF: memberId = {}, 검색어 = {}", member.getId(), searchTerm);
+            return;
         }
 
         redisUtil.addToRecentList(RS_PREFIX + member.getId(), searchTerm, MAX_RECENT_SEARCH_TERMS);
 
-        message = Message.builder()
-                .message("검색어가 저장이 되었습니다.")
-                .build();
-
-        return SuccessResponse.of(message);
+        log.info("검색어 저장 완료: memberId = {}, 검색어 = {}", member.getId(), searchTerm);
     }
 
-    @Transactional
     public SuccessResponse<RecentSearchRes> getRecentSearchTerms(Long memberId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new BadCredentialsException("해당 아이디를 가진 멤버가 없습니다."));
