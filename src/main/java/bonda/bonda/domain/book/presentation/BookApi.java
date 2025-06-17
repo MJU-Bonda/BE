@@ -185,7 +185,23 @@ public interface BookApi {
 
 
 
+    @Operation(summary = "도서 상세 조회", description = "저장한 도서 목록을 조회합니다. (최근 조회한 도서 생성 + 뱃지 생성 처리)")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200", description = "도서 조회 성공",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = DeleteSaveBookRes.class))}
+            ),
+            @ApiResponse(
+                    responseCode = "401", description = "인증 실패",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorCode.class))}
+            )
+    })
+    @GetMapping("/{bookId}")
+    ResponseEntity<SuccessResponse<BookDetailRes>> getBookDetail(@PathVariable(value = "bookId") Long bookId, @LoginMember Member member);
 
 
-}
+
+
+
+    }
 
