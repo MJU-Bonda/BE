@@ -14,10 +14,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/search-term")
-public class SearchTermController {
+public class SearchTermController implements SearchTermApi {
 
     private final SearchTermService searchTermService;
 
+    @Override
     @GetMapping("/recent")
     public ResponseEntity<SuccessResponse<RecentSearchRes>> getRecentSearchTerms(@LoginMember Member member) {
         Long memberId = member.getId();
