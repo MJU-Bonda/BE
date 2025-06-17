@@ -197,11 +197,10 @@ public interface BookApi {
             )
     })
     @GetMapping("/{bookId}")
-    ResponseEntity<SuccessResponse<BookDetailRes>> getBookDetail(@PathVariable(value = "bookId") Long bookId, @LoginMember Member member);
-
-
-
-
-
+    ResponseEntity<SuccessResponse<BookDetailRes>> getBookDetail(
+            @Parameter(description = "도서 ID", example = "123")
+            @PathVariable(value = "bookId") Long bookId,
+            @Parameter(hidden = true) // Swagger에 표시하지 않음 (내부에서 주입되는 로그인 사용자 정보)
+            @LoginMember Member member);
     }
 
