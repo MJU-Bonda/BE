@@ -153,7 +153,7 @@ public class BookCommandServiceImpl implements BookCommandService {
 
         return SuccessResponse.of(SaveBookRes.builder()
                 .bookId(bookId)
-                .isNewBadge(badgeService.checkAndAwardBadges(member, ProgressType.BOOK_SAVE)) //저장에 따른 뱃지 생성
+                .isNewBadge(badgeService.checkAndAwardBadges(persistMember, ProgressType.BOOK_SAVE)) //저장에 따른 뱃지 생성
                 .message(new Message("도서 저장이 완료되었습니다!")).build());
     }
 
