@@ -43,6 +43,7 @@ public class BadgeService {
         for (Badge badge : badges) { //뱃지 돌면서, 현재 진척도와 비교
             if (progress >= badge.getGoal() && !memberBadgeRepository.existsByMemberAndBadge(member, badge)) { //현재 없으면서, 진척도 달생 시
                 memberBadgeRepository.save(new MemberBadge(member, badge)); // 저장
+                member.plusBadgeCount(); //뱃지 카운트 더하기
                 isAwarded = true; //생성 여부
             }
         }
