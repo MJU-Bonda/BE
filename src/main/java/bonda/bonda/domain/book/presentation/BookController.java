@@ -44,8 +44,9 @@ public class BookController implements BookApi {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "24") int size,
             @RequestParam(defaultValue = "newest") String orderBy,
-            @RequestParam String word) {
-        return ResponseEntity.ok(bookSearchService.searchBookList(page, size, orderBy, word));
+            @RequestParam String word,
+            @LoginMember Member member) {
+        return ResponseEntity.ok(bookSearchService.searchBookList(page, size, orderBy, word, member));
     }
 
     @Override
@@ -75,5 +76,11 @@ public class BookController implements BookApi {
             @RequestParam(defaultValue = "recentlySaved") String orderBy,
             @LoginMember Member member) {
         return ResponseEntity.ok(bookReadService.getMySavedBookList(page, size, orderBy, member));
+    }
+
+    @Override
+    @GetMapping("/{bookId}")
+    public ResponseEntity<SuccessResponse<BookDetailRes>> getBookDetail(@PathVariable(value = "bookId") Long bookId, @LoginMember Member member) {
+        return ResponseEntity.ok(bookReadService.getBookDetail(bookId, member));
     }
 }

@@ -14,4 +14,5 @@ public interface BookcaseRepository extends JpaRepository<Bookcase, Long> {
 
     Optional<Bookcase> findByMemberAndBook(Member member, Book book);
 
+    int countByMember(Member member);
 }

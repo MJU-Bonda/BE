@@ -10,6 +10,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 
 import java.net.URL;
@@ -35,7 +36,7 @@ public class KakaoTokenValidator {
 
             return new KakaoMemberRes(sub);
         } catch (Exception e) {
-            throw new RuntimeException("유효하지 않은 kakao_idToken 입니다." + e.getMessage());
+            throw new BadCredentialsException("유효하지 않은 kakao_idToken 입니다." + e.getMessage());
         }
     }
 }

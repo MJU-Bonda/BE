@@ -1,5 +1,7 @@
 package bonda.bonda.domain.book.application;
 
+import bonda.bonda.domain.badge.application.BadgeService;
+import bonda.bonda.domain.badge.domain.ProgressType;
 import bonda.bonda.domain.book.domain.Book;
 import bonda.bonda.domain.book.domain.BookCategory;
 import bonda.bonda.domain.book.domain.repository.BookRepository;
@@ -41,7 +43,7 @@ public class BookCommandServiceImpl implements BookCommandService {
     private final RestTemplate restTemplate;
     private final BookcaseRepository bookcaseRepository;
     private final MemberRepository memberRepository;
-
+    private final BadgeService badgeService;
 
     @Transactional
     public SuccessResponse<Message> saveBookFromAladin(SaveBookFromAladinReq request) {
@@ -149,9 +151,9 @@ public class BookCommandServiceImpl implements BookCommandService {
         persistMember.plusSaveCount();
         bookcaseRepository.save(bookcase);
 
-
         return SuccessResponse.of(SaveBookRes.builder()
                 .bookId(bookId)
+                .isNewBadge(badgeService.checkAndAwardBadges(persistMember, ProgressType.BOOK_SAVE)) //저장에 따른 뱃지 생성
                 .message(new Message("도서 저장이 완료되었습니다!")).build());
     }
 

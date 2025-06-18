@@ -4,6 +4,7 @@ import bonda.bonda.domain.book.domain.Book;
 import bonda.bonda.domain.book.domain.BookCategory;
 import bonda.bonda.domain.book.domain.QBook;
 import bonda.bonda.domain.book.domain.Subject;
+import bonda.bonda.domain.book.dto.response.BookDetailRes;
 import bonda.bonda.domain.bookcase.QBookcase;
 import bonda.bonda.domain.member.domain.Member;
 import bonda.bonda.domain.member.domain.QMember;
@@ -22,6 +23,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,6 +36,7 @@ public class BookRepositoryImpl implements BookRepositoryCustom {
     private final QBook book = QBook.book;
     private final QBookcase bookcase = QBookcase.bookcase;
     private final QMember member = QMember.member;
+
     @Override
     public Book queryDslInitTest(String name) { //테스트용 메서드
         return jpaQueryFactory
@@ -83,6 +86,42 @@ public class BookRepositoryImpl implements BookRepositoryCustom {
         return fetchBookPage(pageable, predicate, orderBy, loginMember);
     }
 
+    @Override
+    public BookDetailRes findBookDetailResWithIsBookMarked(Long bookId, Member member) {
+        Tuple tuple = jpaQueryFactory
+                .select(
+                        book.bookCategory,
+                        book.title,
+                        book.image,
+                        book.writer,
+                        book.publisher,
+                        book.size,
+                        book.page,
+                        book.subject,
+                        book.introduction,
+                        book.content,
+                        bookcase.id.isNotNull()
+                )
+                .from(book)
+                .leftJoin(bookcase).on(bookcase.book.eq(book).and(bookcase.member.eq(member)))
+                .where(book.id.eq(bookId))
+                .fetchOne();
+        return BookDetailRes.builder()
+                .category(tuple.get(book.bookCategory))
+                .title(tuple.get(book.title))
+                .imageUrl(tuple.get(book.image))
+                .author(tuple.get(book.writer))
+                .publisher(tuple.get(book.publisher))
+                .plateType(tuple.get(book.size))
+                .page(tuple.get(book.page))
+                .subject(tuple.get(book.subject))
+                .introduction(tuple.get(book.introduction))
+                .content(tuple.get(book.content))
+                .isBookmarked(tuple.get(bookcase.id.isNotNull()))
+                .isNewBadge(false) // 나중에 세팅
+                .related_article_list(Collections.emptyList()) // 나중에 세팅
+                .build();
+    }
 
 
     // === 내부 공통 메서드 ===

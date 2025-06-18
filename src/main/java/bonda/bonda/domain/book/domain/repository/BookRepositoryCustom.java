@@ -1,6 +1,7 @@
 package bonda.bonda.domain.book.domain.repository;
 
 import bonda.bonda.domain.book.domain.Book;
+import bonda.bonda.domain.book.dto.response.BookDetailRes;
 import bonda.bonda.domain.member.domain.Member;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,4 +19,6 @@ public interface BookRepositoryCustom {
     List<Book> findLovedBookList(String subject);
 
     Page<Book> findMySavedBookList(Pageable pageable, String orderBy, Member member);
+
+    BookDetailRes findBookDetailResWithIsBookMarked(Long bookId, Member member);
 }
