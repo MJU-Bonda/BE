@@ -87,7 +87,10 @@ public interface BookApi {
             @RequestParam(defaultValue = "newest") String orderBy,
 
             @Parameter(description = "검색 키워드", example = "자바")
-            @RequestParam String word);
+            @RequestParam String word,
+
+            @Parameter(hidden = true) // Swagger에 표시하지 않음 (내부에서 주입되는 로그인 사용자 정보)
+            @LoginMember Member member);
 
 
 
