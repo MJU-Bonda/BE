@@ -151,7 +151,6 @@ public class BookCommandServiceImpl implements BookCommandService {
         persistMember.plusSaveCount();
         bookcaseRepository.save(bookcase);
 
-
         return SuccessResponse.of(SaveBookRes.builder()
                 .bookId(bookId)
                 .isNewBadge(badgeService.checkAndAwardBadges(member, ProgressType.BOOK_SAVE)) //저장에 따른 뱃지 생성
