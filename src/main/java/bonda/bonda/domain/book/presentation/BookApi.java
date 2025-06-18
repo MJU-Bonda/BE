@@ -146,7 +146,7 @@ public interface BookApi {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200", description = "도서 조회 성공",
-                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = DeleteSaveBookRes.class))}
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = LovedBookListRes.class))}
             ),
             @ApiResponse(
                     responseCode = "400", description = "잘못된 요청 (잘못된 주제)",
@@ -166,7 +166,7 @@ public interface BookApi {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200", description = "도서 조회 성공",
-                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = DeleteSaveBookRes.class))}
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = SaveBookRes.class))}
             ),
             @ApiResponse(
                     responseCode = "401", description = "인증 실패",
@@ -188,7 +188,22 @@ public interface BookApi {
 
 
 
-
-
-}
+    @Operation(summary = "도서 상세 조회", description = "저장한 도서 목록을 조회합니다. (최근 조회한 도서 생성 + 뱃지 생성 처리)")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200", description = "도서 조회 성공",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = BookDetailRes.class))}
+            ),
+            @ApiResponse(
+                    responseCode = "401", description = "인증 실패",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorCode.class))}
+            )
+    })
+    @GetMapping("/{bookId}")
+    ResponseEntity<SuccessResponse<BookDetailRes>> getBookDetail(
+            @Parameter(description = "도서 ID", example = "123")
+            @PathVariable(value = "bookId") Long bookId,
+            @Parameter(hidden = true) // Swagger에 표시하지 않음 (내부에서 주입되는 로그인 사용자 정보)
+            @LoginMember Member member);
+    }
 

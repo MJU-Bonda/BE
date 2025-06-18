@@ -9,4 +9,6 @@ import lombok.Data;
 public class SaveBookRes {
     Long bookId;
     Message message;
+    Boolean isNewBadge;
+
 }

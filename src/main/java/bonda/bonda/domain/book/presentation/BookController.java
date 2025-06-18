@@ -77,4 +77,10 @@ public class BookController implements BookApi {
             @LoginMember Member member) {
         return ResponseEntity.ok(bookReadService.getMySavedBookList(page, size, orderBy, member));
     }
+
+    @Override
+    @GetMapping("/{bookId}")
+    public ResponseEntity<SuccessResponse<BookDetailRes>> getBookDetail(@PathVariable(value = "bookId") Long bookId, @LoginMember Member member) {
+        return ResponseEntity.ok(bookReadService.getBookDetail(bookId, member));
+    }
 }

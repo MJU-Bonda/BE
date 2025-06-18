@@ -3,6 +3,9 @@ package bonda.bonda.domain.article.domain.repository;
 import bonda.bonda.domain.article.domain.Article;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface ArtcleRepository extends JpaRepository<Article, Long> {
+import java.util.List;
+import java.util.Optional;
+
+public interface ArticleRepository extends JpaRepository<Article, Long> {
 
 }
