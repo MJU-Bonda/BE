@@ -143,7 +143,7 @@ public interface BookApi {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200", description = "도서 조회 성공",
-                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = DeleteSaveBookRes.class))}
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = LovedBookListRes.class))}
             ),
             @ApiResponse(
                     responseCode = "400", description = "잘못된 요청 (잘못된 주제)",
@@ -163,7 +163,7 @@ public interface BookApi {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200", description = "도서 조회 성공",
-                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = DeleteSaveBookRes.class))}
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = SaveBookRes.class))}
             ),
             @ApiResponse(
                     responseCode = "401", description = "인증 실패",
@@ -189,7 +189,7 @@ public interface BookApi {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200", description = "도서 조회 성공",
-                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = DeleteSaveBookRes.class))}
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = BookDetailRes.class))}
             ),
             @ApiResponse(
                     responseCode = "401", description = "인증 실패",
