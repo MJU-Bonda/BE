@@ -57,4 +57,9 @@ public class Member extends BaseEntity {
     public void updateProfileImage(String profileImage) {
         this.profileImage = profileImage;
     }
+
+    public void plusBadgeCount() {
+        this.badgeCount++;
+    }
+
 }
