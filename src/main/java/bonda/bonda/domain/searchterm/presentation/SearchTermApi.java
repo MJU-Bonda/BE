@@ -2,6 +2,7 @@ package bonda.bonda.domain.searchterm.presentation;
 
 import bonda.bonda.domain.member.domain.Member;
 import bonda.bonda.domain.searchterm.dto.response.RecentSearchRes;
+import bonda.bonda.domain.searchterm.dto.response.RecommendKeywordsRes;
 import bonda.bonda.global.annotation.LoginMember;
 import bonda.bonda.global.common.Message;
 import bonda.bonda.global.common.SuccessResponse;
@@ -66,4 +67,18 @@ public interface SearchTermApi {
     @DeleteMapping("/recent/all")
     ResponseEntity<SuccessResponse<Message>> deleteAllSearchTerm(
             @Parameter(description = "최근 검색어를 삭제하고 싶은 회원의 AccessToken을 입력하세요.", required = true) @LoginMember Member member);
+
+    @Operation(summary = "추천 키워드 목록 조회", description = "서비스에서 제공하는 추천 키워드 목록을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200", description = "추천 키워드 목록 조회 성공",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = RecommendKeywordsRes.class))}
+            ),
+            @ApiResponse(
+                    responseCode = "404", description = "추천 키워드 목록 조회 실패",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorCode.class))}
+            )
+    })
+    @GetMapping("/recommend")
+    ResponseEntity<SuccessResponse<RecommendKeywordsRes>> getRecommendKeywords();
 }

@@ -39,6 +39,7 @@ public class SearchTermController implements SearchTermApi {
         return ResponseEntity.ok(searchTermService.deleteAllSearchTerm(memberId));
     }
 
+    @Override
     @GetMapping("/recommend")
     public ResponseEntity<SuccessResponse<RecommendKeywordsRes>> getRecommendKeywords() {
         return ResponseEntity.ok(searchTermService.getRecommendKeyword());
