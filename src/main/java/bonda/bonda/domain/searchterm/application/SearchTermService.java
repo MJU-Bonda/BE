@@ -3,6 +3,7 @@ package bonda.bonda.domain.searchterm.application;
 import bonda.bonda.domain.member.domain.Member;
 import bonda.bonda.domain.member.domain.repository.MemberRepository;
 import bonda.bonda.domain.searchterm.dto.response.RecentSearchRes;
+import bonda.bonda.domain.searchterm.dto.response.RecommendKeywordsRes;
 import bonda.bonda.global.common.Message;
 import bonda.bonda.global.common.SuccessResponse;
 import bonda.bonda.infrastructure.redis.RedisListUtil;
@@ -12,7 +13,9 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.*;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -72,5 +75,30 @@ public class SearchTermService {
                 .build();
 
         return SuccessResponse.of(message);
+    }
+
+    public SuccessResponse<RecommendKeywordsRes> getRecommendKeyword() {
+        List<String> keywords = Arrays.asList(
+                "여행", "미니멀리즘", "감정", "번아웃", "비건", "슬로우라이프", "혼자", "시골", "로컬", "책방",
+                "커피", "취향", "반려식물", "반려동물", "인테리어", "공간", "독립출판", "영화", "음악", "글쓰기",
+                "서사", "아카이빙", "한달살이", "인터뷰", "편집", "잡지", "상실", "동네", "불완전", "기분"
+        );
+
+        // 매일 달라지는 시드값 생성
+        ZoneId KST = ZoneId.of("Asia/Seoul");
+        long seed = LocalDate.now(KST).toEpochDay();
+
+        // 시드값에 따라 랜덤한 3개 keywords 추출
+        List<String> shuffled = new ArrayList<>(keywords);
+        Collections.shuffle(shuffled, new Random(seed));
+
+        // 3개 선택
+        List<String> selectedThreeKeywords = shuffled.subList(0, 3);
+
+        RecommendKeywordsRes recommendKeywordsRes = RecommendKeywordsRes.builder()
+                .recommendKeywords(selectedThreeKeywords)
+                .build();
+
+        return SuccessResponse.of(recommendKeywordsRes);
     }
 }
