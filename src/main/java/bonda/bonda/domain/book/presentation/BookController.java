@@ -95,7 +95,7 @@ public class BookController implements BookApi {
 
     @Override
     @GetMapping("/recent")
-    public ResponseEntity<SuccessResponse<RecentBookListRes>> getRecentViewBookList(
+    public ResponseEntity<SuccessResponse<RecentBookListRes>> getJustArrivedBookList(
             @RequestParam(defaultValue = "ALL") String subject) {
         return ResponseEntity.ok(bookReadService.getRecentBookList(subject));
     }

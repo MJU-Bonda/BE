@@ -245,7 +245,7 @@ public interface BookApi {
             )
     })
     @GetMapping("/recent")
-    ResponseEntity<SuccessResponse<RecentBookListRes>> getRecentViewBookList(
+    ResponseEntity<SuccessResponse<RecentBookListRes>> getJustArrivedBookList(
             @Parameter(description = "도서 주제", example = "subject")
             @RequestParam(defaultValue = "ALL") String subject);
 }
