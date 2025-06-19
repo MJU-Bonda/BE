@@ -51,4 +51,15 @@ public class SearchTermService {
 
         return SuccessResponse.of(recentSearchRes);
     }
+
+    @Transactional
+    public SuccessResponse<Message> deleteSearchTerm(Long memberId, String keyword) {
+        redisUtil.removeItem(RS_PREFIX + memberId, keyword);
+
+        Message message = Message.builder()
+                .message("최근 검색어 " + keyword + " 삭제 완료되었습니다")
+                .build();
+
+        return SuccessResponse.of(message);
+    }
 }

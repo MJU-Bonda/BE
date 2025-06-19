@@ -4,12 +4,11 @@ import bonda.bonda.domain.member.domain.Member;
 import bonda.bonda.domain.searchterm.application.SearchTermService;
 import bonda.bonda.domain.searchterm.dto.response.RecentSearchRes;
 import bonda.bonda.global.annotation.LoginMember;
+import bonda.bonda.global.common.Message;
 import bonda.bonda.global.common.SuccessResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
@@ -23,5 +22,11 @@ public class SearchTermController implements SearchTermApi {
     public ResponseEntity<SuccessResponse<RecentSearchRes>> getRecentSearchTerms(@LoginMember Member member) {
         Long memberId = member.getId();
         return ResponseEntity.ok(searchTermService.getRecentSearchTerms(memberId));
+    }
+
+    @DeleteMapping("/recent")
+    public ResponseEntity<SuccessResponse<Message>> deleteSearchTerm(@LoginMember Member member, @RequestParam String keyword) {
+        Long memberId = member.getId();
+        return ResponseEntity.ok(searchTermService.deleteSearchTerm(memberId, keyword));
     }
 }
