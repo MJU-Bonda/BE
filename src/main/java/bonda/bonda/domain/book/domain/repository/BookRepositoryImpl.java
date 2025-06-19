@@ -8,6 +8,7 @@ import bonda.bonda.domain.book.dto.response.BookDetailRes;
 import bonda.bonda.domain.bookcase.QBookcase;
 import bonda.bonda.domain.member.domain.Member;
 import bonda.bonda.domain.member.domain.QMember;
+import bonda.bonda.domain.recentviewbook.QRecentViewBook;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.OrderSpecifier;
@@ -36,6 +37,7 @@ public class BookRepositoryImpl implements BookRepositoryCustom {
     private final QBook book = QBook.book;
     private final QBookcase bookcase = QBookcase.bookcase;
     private final QMember member = QMember.member;
+    private final QRecentViewBook recentViewBook = QRecentViewBook.recentViewBook;
 
     @Override
     public Book queryDslInitTest(String name) { //테스트용 메서드
@@ -123,6 +125,11 @@ public class BookRepositoryImpl implements BookRepositoryCustom {
                 .build();
     }
 
+    @Override
+    public Page<Book> findRecentViewBookList(Member member, Pageable pageable) {
+        return fetchRecentBooksPageByViewDate(pageable, new BooleanBuilder(), member);
+    }
+
 
     // === 내부 공통 메서드 ===
 
@@ -154,9 +161,35 @@ public class BookRepositoryImpl implements BookRepositoryCustom {
     }
 
 
-
-
     // ==기본 반환 (List 반환)==
+    private Page<Book> fetchRecentBooksPageByViewDate(Pageable pageable, BooleanBuilder predicate, Member loginMember) {
+        // 1. 조건에 맞는 도서 리스트 조회 (최근 본 순서대로 정렬, 페이징)
+        List<Book> bookList = jpaQueryFactory
+                .selectFrom(book)
+                .innerJoin(recentViewBook).on(
+                        recentViewBook.member.eq(loginMember),
+                        recentViewBook.book.eq(book)
+                )
+                .where(predicate)
+                .orderBy(recentViewBook.viewDate.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+// 2. 전체 개수 계산 (hasNext() 등 페이지 정보 생성을 위해)
+        Long total = jpaQueryFactory
+                .select(book.count())
+                .from(book)
+                .innerJoin(recentViewBook).on(
+                        recentViewBook.book.eq(book),
+                        recentViewBook.member.eq(loginMember)
+                )
+                .where(predicate)
+                .fetchOne();
+
+// 3. Page 객체로 결과 구성 (total 값이 null일 경우 0 처리)
+        return new PageImpl<>(bookList, pageable, total != null ? total : 0);
+    }
 
     // 인기 순 정렬
     private List<Book> fetchBooksByPopularity(Pageable pageable, BooleanBuilder predicate) {

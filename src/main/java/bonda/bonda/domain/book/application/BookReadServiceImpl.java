@@ -101,6 +101,18 @@ public class BookReadServiceImpl implements BookReadService {
         return SuccessResponse.of(viewAndBadgeCheck(member, book, bookDetailRes));// 조회 기록 및 뱃지 처리해서 응답 반환
     }
 
+    @Override
+    public SuccessResponse<RecentViewBookListRes> getRecentViewBookList(int page, int size,Member member) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Book> recentViewBookList = bookRepository.findRecentViewBookList(member, pageable);
+        List<BookListRes> bookListRes = convertToBookListRes(recentViewBookList.getContent());
+        return SuccessResponse.of(RecentViewBookListRes.builder()
+                .page(page)
+                .hasNextPage(recentViewBookList.hasNext())
+                .bookList(bookListRes)
+                .build());
+    }
+
     /**책 기본 정보와 북마크 여부 조회 및 res 일부 체우기**/
     private BookDetailRes getBookDetailResWithIsBookMarked(Long bookId, Member member) {
         BookDetailRes bookDetailRes = bookRepository.findBookDetailResWithIsBookMarked(bookId, member); //도서 기본 정보 체우기

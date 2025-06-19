@@ -21,4 +21,6 @@ public interface BookRepositoryCustom {
     Page<Book> findMySavedBookList(Pageable pageable, String orderBy, Member member);
 
     BookDetailRes findBookDetailResWithIsBookMarked(Long bookId, Member member);
+
+    Page<Book> findRecentViewBookList(Member member, Pageable pageable);
 }

@@ -205,5 +205,5 @@ public interface BookApi {
             @PathVariable(value = "bookId") Long bookId,
             @Parameter(hidden = true) // Swagger에 표시하지 않음 (내부에서 주입되는 로그인 사용자 정보)
             @LoginMember Member member);
-    }
+}
 
