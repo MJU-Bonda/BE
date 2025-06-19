@@ -62,4 +62,15 @@ public class SearchTermService {
 
         return SuccessResponse.of(message);
     }
+
+    @Transactional
+    public SuccessResponse<Message> deleteAllSearchTerm(Long memberId) {
+        redisUtil.deleteList(RS_PREFIX + memberId);
+
+        Message message = Message.builder()
+                .message("최근 검색어 전체 삭제 완료되었씁니다.")
+                .build();
+
+        return SuccessResponse.of(message);
+    }
 }

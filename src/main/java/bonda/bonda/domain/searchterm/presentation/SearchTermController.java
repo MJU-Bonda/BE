@@ -29,4 +29,10 @@ public class SearchTermController implements SearchTermApi {
         Long memberId = member.getId();
         return ResponseEntity.ok(searchTermService.deleteSearchTerm(memberId, keyword));
     }
+
+    @DeleteMapping("/recent/all")
+    public ResponseEntity<SuccessResponse<Message>> deleteAllSearchTerm(@LoginMember Member member) {
+        Long memberId = member.getId();
+        return ResponseEntity.ok(searchTermService.deleteAllSearchTerm(memberId));
+    }
 }
