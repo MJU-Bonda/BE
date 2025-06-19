@@ -15,6 +15,6 @@ public interface BookReadService {
 
     SuccessResponse<RecentViewBookListRes> getRecentViewBookList(int page, int size,Member member);
 
-    SuccessResponse<RecentBookListRes> getRecentBookList(String subject);
+    SuccessResponse<RecentBookListRes> getJustArrivedBookList(String subject);
 }
 

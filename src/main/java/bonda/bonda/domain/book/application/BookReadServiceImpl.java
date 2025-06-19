@@ -127,12 +127,12 @@ public class BookReadServiceImpl implements BookReadService {
     }
 
     @Override
-    public SuccessResponse<RecentBookListRes> getRecentBookList(String subject) {
+    public SuccessResponse<RecentBookListRes> getJustArrivedBookList(String subject) {
         // 입력받은 주제 검증
         if (Subject.isValid(subject) == false) {
             throw new BusinessException("Invalid book subject: " + subject, INVALID_BOOK_SUBJECT);
         }
-        String redisKey = "recentBooks:" + subject;
+        String redisKey = "RB_" + subject;
         try {
             if (redisUtil.existData(redisKey)) { // 이미 redis 에 존재하면 꺼내서 바로 반환
                 List<BookListRes> cachedList = objectMapper.readValue(redisUtil.getData(redisKey), new TypeReference<List<BookListRes>>() {});
