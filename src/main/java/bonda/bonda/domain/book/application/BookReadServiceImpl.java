@@ -30,6 +30,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -158,9 +160,8 @@ public class BookReadServiceImpl implements BookReadService {
         }
     }
     private long getSecondsUntilMidnight() {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime midnight = now.toLocalDate().plusDays(1).atStartOfDay();
-        log.info("TTL 계산: 현재 시간 = {}, 자정 시간 = {}", now, midnight);
+        ZonedDateTime now = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
+        ZonedDateTime midnight = now.toLocalDate().plusDays(1).atStartOfDay(ZoneId.of("Asia/Seoul"));
         return Duration.between(now, midnight).getSeconds();
     }
     /**책 기본 정보와 북마크 여부 조회 및 res 일부 체우기**/
