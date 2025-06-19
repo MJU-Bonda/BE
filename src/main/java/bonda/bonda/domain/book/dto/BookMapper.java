@@ -14,7 +14,7 @@ public class BookMapper {
                         .title(book.getTitle())
                         .author(book.getWriter())
                         .imageUrl(book.getImage())
-                        .subject(book.getSubject() != null ? book.getSubject().getValue() : null)
+                        .category(book.getSubject() != null ? book.getBookCategory().getValue() : null)
                         .build())
                 .collect(Collectors.toList());
     }

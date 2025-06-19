@@ -14,5 +14,7 @@ public interface BookReadService {
     SuccessResponse<BookDetailRes> getBookDetail(Long bookId, Member member);
 
     SuccessResponse<RecentViewBookListRes> getRecentViewBookList(int page, int size,Member member);
+
+    SuccessResponse<RecentBookListRes> getJustArrivedBookList(String subject);
 }
 

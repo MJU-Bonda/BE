@@ -10,13 +10,16 @@ import bonda.bonda.domain.book.domain.repository.BookRepository;
 import bonda.bonda.domain.book.dto.response.*;
 import bonda.bonda.domain.bookarticle.BookArticle;
 import bonda.bonda.domain.bookarticle.repository.BookArticleRepository;
-import bonda.bonda.domain.member.application.MemberService;
 import bonda.bonda.domain.member.domain.Member;
 import bonda.bonda.domain.member.domain.repository.MemberRepository;
 import bonda.bonda.domain.recentviewbook.RecentViewBook;
 import bonda.bonda.domain.recentviewbook.repository.RecentViewBookRepository;
 import bonda.bonda.global.common.SuccessResponse;
 import bonda.bonda.global.exception.BusinessException;
+import bonda.bonda.infrastructure.redis.RedisUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -25,7 +28,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,6 +48,9 @@ public class BookReadServiceImpl implements BookReadService {
     private final RecentViewBookRepository recentViewBookRepository;
     private final BadgeService badgeService;
     private final MemberRepository memberRepository;
+    private final RedisUtil redisUtil;
+    private final ObjectMapper objectMapper;
+
 
     @Override
     public SuccessResponse<BookListByCategoryRes> bookListByCategory(Integer page, Integer size, String orderBy, String category) {
@@ -71,7 +80,7 @@ public class BookReadServiceImpl implements BookReadService {
         if (Subject.isValid(subject) == false) {
             throw new BusinessException("Invalid book subject: " + subject, INVALID_BOOK_SUBJECT);
         }
-        ;
+
         List<Book> lovedBookList = bookRepository.findLovedBookList(subject);
         List<BookListRes> bookListRes = convertToBookListRes(lovedBookList);
         return SuccessResponse.of(LovedBookListRes.builder()
@@ -119,6 +128,42 @@ public class BookReadServiceImpl implements BookReadService {
                 .build());
     }
 
+    @Override
+    public SuccessResponse<RecentBookListRes> getJustArrivedBookList(String subject) {
+        // 입력받은 주제 검증
+        if (Subject.isValid(subject) == false) {
+            throw new BusinessException("Invalid book subject: " + subject, INVALID_BOOK_SUBJECT);
+        }
+        String redisKey = "RB_" + subject;
+        try {
+            if (redisUtil.existData(redisKey)) { // 이미 redis 에 존재하면 꺼내서 바로 반환
+                List<BookListRes> cachedList = objectMapper.readValue(redisUtil.getData(redisKey), new TypeReference<List<BookListRes>>() {});
+                return SuccessResponse.of(RecentBookListRes.builder()
+                        .subject(subject)
+                        .bookList(cachedList).build());
+            }
+            // redis 없으면 DB 조회
+            List<Book> bookList = bookRepository.findRecentBookListBySubject(subject);
+            // dto 변환
+            List<BookListRes> bookListDto = convertToBookListRes(bookList);
+            // dto를 redis에서 사용하는 json 형식으로 변환
+            String json = objectMapper.writeValueAsString(bookListDto);
+            // redis 에 저장
+            redisUtil.setDataExpire(redisKey, json, getSecondsUntilMidnight()); // 다음날 자정까지 ttl 설정
+
+            return SuccessResponse.of(RecentBookListRes.builder()
+                    .subject(subject)
+                    .bookList(bookListDto).build());
+
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    private long getSecondsUntilMidnight() {
+        ZonedDateTime now = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
+        ZonedDateTime midnight = now.toLocalDate().plusDays(1).atStartOfDay(ZoneId.of("Asia/Seoul"));
+        return Duration.between(now, midnight).getSeconds();
+    }
     /**책 기본 정보와 북마크 여부 조회 및 res 일부 체우기**/
     private BookDetailRes getBookDetailResWithIsBookMarked(Long bookId, Member member) {
         BookDetailRes bookDetailRes = bookRepository.findBookDetailResWithIsBookMarked(bookId, member); //도서 기본 정보 체우기

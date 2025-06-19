@@ -130,6 +130,20 @@ public class BookRepositoryImpl implements BookRepositoryCustom {
         return fetchRecentBooksPageByViewDate(pageable, new BooleanBuilder(), member);
     }
 
+    @Override
+    public List<Book> findRecentBookListBySubject(String subject) {
+        BooleanBuilder predicate = new BooleanBuilder();
+        //주제 필터 조건
+        if (!"ALL".equalsIgnoreCase(subject)) { //카테고리 조건
+            predicate.and(book.subject.eq(Subject.valueOf(subject.toUpperCase())));
+        }
+        //페이지 조건 (상위 3개)
+        Pageable pageable = PageRequest.of(0, 3);
+        return fetchBooksByPublishDateThenRandom(pageable, predicate);
+    }
+
+
+
 
     // === 내부 공통 메서드 ===
 
@@ -278,6 +292,18 @@ public class BookRepositoryImpl implements BookRepositoryCustom {
         return tuples.stream()
                 .map(t -> t.get(book))
                 .toList();
+    }
+    private List<Book> fetchBooksByPublishDateThenRandom(Pageable pageable, BooleanBuilder predicate) {
+        return jpaQueryFactory
+                .selectFrom(book)
+                .where(predicate)
+                .orderBy(
+                        book.publishDate.desc(), // 출판일 기준 내림차순
+                        Expressions.numberTemplate(Double.class, "rand()").asc() // 동일한 출판일이면 랜덤 정렬
+                )
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
     }
 
     // == 페이지 기준 설정 ==

@@ -34,4 +34,12 @@ public enum Subject {
         return Arrays.stream(values())
                 .anyMatch(s -> s.getKey().equalsIgnoreCase(upper));
     }
+    public static Subject getByKey(String key) {
+        if (key == null) return null;
+        String upper = key.toUpperCase();
+        return Arrays.stream(values())
+                .filter(s -> s.getKey().equalsIgnoreCase(upper))
+                .findFirst()
+                .orElse(null);
+    }
 }

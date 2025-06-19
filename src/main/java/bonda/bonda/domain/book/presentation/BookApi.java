@@ -158,7 +158,9 @@ public interface BookApi {
             )
     })
     @GetMapping("/liked")
-    ResponseEntity<SuccessResponse<LovedBookListRes>> getLovedBookList(@RequestParam(defaultValue = "ALL") String subject);
+    ResponseEntity<SuccessResponse<LovedBookListRes>> getLovedBookList(
+            @Parameter(description = "도서 주제", example = "subject")
+            @RequestParam(defaultValue = "ALL") String subject);
 
 
 
@@ -226,5 +228,25 @@ public interface BookApi {
             @RequestParam(defaultValue = "24") int size,
             @Parameter(hidden = true) // Swagger에 표시하지 않음 (내부에서 주입되는 로그인 사용자 정보)
             @LoginMember Member member);
+
+    @Operation(summary = "최근 유행 도서 조회", description = "홈 화면의 방금 도착한 새로운 도서의 목록을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200", description = "도서 조회 성공",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = RecentBookListRes.class))}
+            ),
+            @ApiResponse(
+                    responseCode = "400", description = "잘못된 요청 (잘못된 주제)",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorCode.class))}
+            ),
+            @ApiResponse(
+                    responseCode = "401", description = "인증 실패",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorCode.class))}
+            )
+    })
+    @GetMapping("/recent")
+    ResponseEntity<SuccessResponse<RecentBookListRes>> getJustArrivedBookList(
+            @Parameter(description = "도서 주제", example = "subject")
+            @RequestParam(defaultValue = "ALL") String subject);
 }
 
