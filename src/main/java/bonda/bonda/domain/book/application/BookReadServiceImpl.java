@@ -10,7 +10,9 @@ import bonda.bonda.domain.book.domain.repository.BookRepository;
 import bonda.bonda.domain.book.dto.response.*;
 import bonda.bonda.domain.bookarticle.BookArticle;
 import bonda.bonda.domain.bookarticle.repository.BookArticleRepository;
+import bonda.bonda.domain.member.application.MemberService;
 import bonda.bonda.domain.member.domain.Member;
+import bonda.bonda.domain.member.domain.repository.MemberRepository;
 import bonda.bonda.domain.recentviewbook.RecentViewBook;
 import bonda.bonda.domain.recentviewbook.repository.RecentViewBookRepository;
 import bonda.bonda.global.common.SuccessResponse;
@@ -39,6 +41,8 @@ public class BookReadServiceImpl implements BookReadService {
     private final BookArticleRepository bookArticleRepository;
     private final RecentViewBookRepository recentViewBookRepository;
     private final BadgeService badgeService;
+    private final MemberRepository memberRepository;
+
     @Override
     public SuccessResponse<BookListByCategoryRes> bookListByCategory(Integer page, Integer size, String orderBy, String category) {
         if (BookCategory.isValid(category) == false) {
@@ -95,10 +99,24 @@ public class BookReadServiceImpl implements BookReadService {
     @Override
     @Transactional
     public SuccessResponse<BookDetailRes> getBookDetail(Long bookId, Member member) {
+        // 멤버 조회 -> 영속 상태로 조회
+        Member persistMember = memberRepository.findByKakaoId(member.getKakaoId()).orElseThrow(() -> new BusinessException(INVALID_MEMBER));
         //책 조회 -> 없으면 오류
         Book book = bookRepository.findById(bookId).orElseThrow(() -> new BusinessException(INVALID_BOOK_Id));
-        BookDetailRes bookDetailRes = getBookDetailResWithIsBookMarked(bookId, member); //응답에 기본 정보 체우기
-        return SuccessResponse.of(viewAndBadgeCheck(member, book, bookDetailRes));// 조회 기록 및 뱃지 처리해서 응답 반환
+        BookDetailRes bookDetailRes = getBookDetailResWithIsBookMarked(bookId, persistMember); //응답에 기본 정보 체우기
+        return SuccessResponse.of(viewAndBadgeCheck(persistMember, book, bookDetailRes));// 조회 기록 및 뱃지 처리해서 응답 반환
+    }
+
+    @Override
+    public SuccessResponse<RecentViewBookListRes> getRecentViewBookList(int page, int size,Member member) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Book> recentViewBookList = bookRepository.findRecentViewBookList(member, pageable);
+        List<BookListRes> bookListRes = convertToBookListRes(recentViewBookList.getContent());
+        return SuccessResponse.of(RecentViewBookListRes.builder()
+                .page(page)
+                .hasNextPage(recentViewBookList.hasNext())
+                .bookList(bookListRes)
+                .build());
     }
 
     /**책 기본 정보와 북마크 여부 조회 및 res 일부 체우기**/
