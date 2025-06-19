@@ -24,5 +24,6 @@ public interface BookRepositoryCustom {
 
     Page<Book> findRecentViewBookList(Member member, Pageable pageable);
 
+    List<Book> findRecentBookListBySubject(String subject);
 
 }

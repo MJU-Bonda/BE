@@ -8,7 +8,5 @@ import java.util.List;
 
 public interface BookRepository extends JpaRepository<Book, Long> , BookRepositoryCustom {
 
-    List<Book> findTop3BySubjectOrderByPublishDateDesc(Subject subject);
 
-    List<Book> findTop3ByOrderByPublishDateDesc();
 }

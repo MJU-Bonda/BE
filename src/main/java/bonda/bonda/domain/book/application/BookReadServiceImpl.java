@@ -141,12 +141,7 @@ public class BookReadServiceImpl implements BookReadService {
                         .bookList(cachedList).build());
             }
             // redis 없으면 DB 조회
-            List<Book> bookList;
-            if (subject.equalsIgnoreCase(Subject.ALL.getKey())) {
-                bookList = bookRepository.findTop3ByOrderByPublishDateDesc();
-            } else {
-                bookList = bookRepository.findTop3BySubjectOrderByPublishDateDesc(Subject.getByKey(subject));
-            }
+            List<Book> bookList = bookRepository.findRecentBookListBySubject(subject);
             // dto 변환
             List<BookListRes> bookListDto = convertToBookListRes(bookList);
             // dto를 redis에서 사용하는 json 형식으로 변환
