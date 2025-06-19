@@ -17,6 +17,6 @@ public class BookListRes {
     String author;
     @Schema(description = "도서 이미지 url")
     String imageUrl;
-    @Schema(description = "도서 주제", example = "true")
-    String subject;
+    @Schema(description = "도서 카테고리")
+    String category;
 }

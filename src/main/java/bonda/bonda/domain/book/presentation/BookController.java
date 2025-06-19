@@ -92,4 +92,10 @@ public class BookController implements BookApi {
             @LoginMember Member member) {
         return ResponseEntity.ok(bookReadService.getRecentViewBookList(page, size, member));
     }
+
+    @GetMapping("/recent")
+    public ResponseEntity<SuccessResponse<RecentBookListRes>> getRecentViewBookList(
+            @RequestParam(defaultValue = "ALL") String subject) {
+        return ResponseEntity.ok(bookReadService.getRecentBookList(subject));
+    }
 }

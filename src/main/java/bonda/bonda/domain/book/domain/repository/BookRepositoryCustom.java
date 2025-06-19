@@ -23,4 +23,6 @@ public interface BookRepositoryCustom {
     BookDetailRes findBookDetailResWithIsBookMarked(Long bookId, Member member);
 
     Page<Book> findRecentViewBookList(Member member, Pageable pageable);
+
+
 }
