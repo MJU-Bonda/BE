@@ -1,6 +1,7 @@
 package bonda.bonda.domain.searchterm.presentation;
 
 import bonda.bonda.domain.member.domain.Member;
+import bonda.bonda.domain.searchterm.dto.response.ModifyAutoSave;
 import bonda.bonda.domain.searchterm.dto.response.RecentSearchRes;
 import bonda.bonda.domain.searchterm.dto.response.RecommendKeywordsRes;
 import bonda.bonda.global.annotation.LoginMember;
@@ -17,6 +18,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Tag(name = "SearchTerm API", description = "검색어 관련 API입니다.")
@@ -81,4 +83,19 @@ public interface SearchTermApi {
     })
     @GetMapping("/recommend")
     ResponseEntity<SuccessResponse<RecommendKeywordsRes>> getRecommendKeywords();
+
+    @Operation(summary = "검색어 자동 저장 여부 변경", description = "회원의 최근 검색어 자동 저장 여부를 변경합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200", description = "검색어 자동 저장 여부 변경 성공",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}
+            ),
+            @ApiResponse(
+                    responseCode = "401", description = "검색어 자동 저장 여부 변경 실패",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorCode.class))}
+            )
+    })
+    @PatchMapping("/auto-save")
+    ResponseEntity<SuccessResponse<ModifyAutoSave>> modifyAutoSave(
+            @Parameter(description = "검색어 자동 저장 여부를 변경하고 싶은 회원의 AccessToken을 입력하세요.", required = true) @LoginMember Member member);
 }
