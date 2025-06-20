@@ -2,6 +2,7 @@ package bonda.bonda.domain.searchterm.presentation;
 
 import bonda.bonda.domain.member.domain.Member;
 import bonda.bonda.domain.searchterm.application.SearchTermService;
+import bonda.bonda.domain.searchterm.dto.response.ModifyAutoSave;
 import bonda.bonda.domain.searchterm.dto.response.RecentSearchRes;
 import bonda.bonda.domain.searchterm.dto.response.RecommendKeywordsRes;
 import bonda.bonda.global.annotation.LoginMember;
@@ -43,5 +44,11 @@ public class SearchTermController implements SearchTermApi {
     @GetMapping("/recommend")
     public ResponseEntity<SuccessResponse<RecommendKeywordsRes>> getRecommendKeywords() {
         return ResponseEntity.ok(searchTermService.getRecommendKeyword());
+    }
+
+    @PatchMapping("/auto-save")
+    public ResponseEntity<SuccessResponse<ModifyAutoSave>> modifyAutoSave(@LoginMember Member member) {
+        Long memberId = member.getId();
+        return ResponseEntity.ok(searchTermService.modifyAutoSave(memberId));
     }
 }

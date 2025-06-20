@@ -2,6 +2,7 @@ package bonda.bonda.domain.searchterm.application;
 
 import bonda.bonda.domain.member.domain.Member;
 import bonda.bonda.domain.member.domain.repository.MemberRepository;
+import bonda.bonda.domain.searchterm.dto.response.ModifyAutoSave;
 import bonda.bonda.domain.searchterm.dto.response.RecentSearchRes;
 import bonda.bonda.domain.searchterm.dto.response.RecommendKeywordsRes;
 import bonda.bonda.global.common.Message;
@@ -100,5 +101,24 @@ public class SearchTermService {
                 .build();
 
         return SuccessResponse.of(recommendKeywordsRes);
+    }
+
+    @Transactional
+    public SuccessResponse<ModifyAutoSave> modifyAutoSave(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new BadCredentialsException("해당 아이디를 가진 멤버가 없습니다."));
+
+        Boolean autoSave = member.getAutoSave();
+        member.updateAutoSave(!autoSave);   // true -> false / false -> true
+
+        if(autoSave) {
+            redisUtil.deleteList(RS_PREFIX + memberId);
+        }
+
+        ModifyAutoSave modifyAutoSave = ModifyAutoSave.builder()
+                .autoSave(!autoSave)
+                .build();
+
+        return SuccessResponse.of(modifyAutoSave);
     }
 }
