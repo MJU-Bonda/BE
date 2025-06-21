@@ -12,14 +12,15 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/articles")
-public class ArticleController {
+public class ArticleController implements ArticleApi {
     private final ArticleReadService articleReadService;
 
 
+    @Override
     @GetMapping("{articleCategory}")
     public ResponseEntity<SuccessResponse<ArticleListByCategoryRes>> getArticleListByCategory(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "24") int size,
+            @RequestParam(defaultValue = "10") int size,
             @PathVariable(value = "articleCategory") String category,
             @LoginMember Member member) {
         return ResponseEntity.ok(articleReadService.getArticleListByCategory(page, size, category, member));
