@@ -103,7 +103,9 @@ public enum ErrorCode {
     ALREADY_SAVED_BOOK(400, "BC003", "이미 저장한 도서입니다."),
     SAVED_BOOK_NOT_EXIST(400, "BC004", "저장된 도서가 없습니다"),
 
-    INVALID_MEMBER(400, "MB001", "유효하지 않은 회원입니다.");
+    INVALID_MEMBER(400, "MB001", "유효하지 않은 회원입니다."),
+
+    INVALID_ARTICLE_CATEGORY(400, "AC001", "유효하지 않은 아티클 카테고리입니다.");
 
 
     // End
