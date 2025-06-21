@@ -35,7 +35,7 @@ public interface ArticleApi {
     ResponseEntity<SuccessResponse<ArticleListByCategoryRes>> getArticleListByCategory(
             @Parameter(description = "페이지 번호 (0부터 시작)", example = "0")
             @RequestParam(defaultValue = "0") int page,
-            @Parameter(description = "페이지당 항목 수", example = "24")
+            @Parameter(description = "페이지당 항목 수", example = "10")
             @RequestParam(defaultValue = "10") int size,
             @Parameter(description = "카테고리명 (예: ALL, AUTHOR_OR_PUBLISHER, BOOKSTORE, THEME)", example = "ALL")
             @PathVariable(value = "articleCategory") String category,
