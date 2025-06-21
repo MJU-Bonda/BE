@@ -28,6 +28,7 @@ public class ArticleController implements ArticleApi {
         return ResponseEntity.ok(articleReadService.getArticleListByCategory(page, size, category, member));
     }
 
+    @Override
     @PostMapping("save/{articleId}")
     public ResponseEntity<SuccessResponse<SaveArticleRes>> saveArticle(@PathVariable("articleId") Long articleId, @LoginMember Member member) {
         return ResponseEntity.ok(articleCommandService.saveArticle(member, articleId));
