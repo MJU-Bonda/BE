@@ -1,6 +1,7 @@
 package bonda.bonda.domain.article.presentation;
 
 import bonda.bonda.domain.article.dto.response.ArticleListByCategoryRes;
+import bonda.bonda.domain.article.dto.response.DeleteSaveArticleRes;
 import bonda.bonda.domain.article.dto.response.SaveArticleRes;
 import bonda.bonda.domain.member.domain.Member;
 import bonda.bonda.global.annotation.LoginMember;
@@ -14,10 +15,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Article API", description = "아티클 관련 API입니다.")
 public interface ArticleApi {
@@ -58,6 +56,25 @@ public interface ArticleApi {
     })
     @PostMapping("save/{articleId}")
     ResponseEntity<SuccessResponse<SaveArticleRes>> saveArticle(
+            @Parameter(description = "아티클 아이디", example = "123")
+            @PathVariable("articleId") Long articleId,
+            @Parameter(hidden = true) // Swagger에 표시하지 않음 (내부에서 주입되는 로그인 사용자 정보)
+            @LoginMember Member member);
+
+
+    @Operation(summary = "아티클 저장 삭제", description = "저장한 아티클을 삭제합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200", description = "아티클 삭제 성공",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = DeleteSaveArticleRes.class))}
+            ),
+            @ApiResponse(
+                    responseCode = "400", description = "아티클 저장 실패",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorCode.class))}
+            )
+    })
+    @DeleteMapping("save/{articleId}")
+    ResponseEntity<SuccessResponse<DeleteSaveArticleRes>> deleteSaveArticle(
             @Parameter(description = "아티클 아이디", example = "123")
             @PathVariable("articleId") Long articleId,
             @Parameter(hidden = true) // Swagger에 표시하지 않음 (내부에서 주입되는 로그인 사용자 정보)
