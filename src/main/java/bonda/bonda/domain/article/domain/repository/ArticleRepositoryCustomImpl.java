@@ -1,5 +1,6 @@
 package bonda.bonda.domain.article.domain.repository;
 
+import bonda.bonda.domain.article.domain.Article;
 import bonda.bonda.domain.article.domain.ArticleCategory;
 import bonda.bonda.domain.article.domain.QArticle;
 import bonda.bonda.domain.article.dto.response.SimpleArticleResWithBookmarked;
@@ -58,6 +59,11 @@ public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
                 .fetchOne();
 
         return new PageImpl<>(articles, pageable, total != null ? total : 0);
+    }
+
+    @Override
+    public Page<Article> searchArticleList(Pageable pageable, String orderBy, String word) {
+        return null;
     }
 
 
