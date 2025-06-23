@@ -46,14 +46,14 @@ public class ArticleReadServiceImpl implements ArticleReadService {
         // 페이지 정보
         Pageable pageable = PageRequest.of(page, size);
         Page<Article> articleList = articleRepository.findMySavedArticleList(pageable, orderBy, member);
-        List<SimpleArticleRes> ArticleListRes = convertToSimpleArticleListRes(articleList.getContent());
+        List<SimpleArticleRes> articleListRes = convertToSimpleArticleListRes(articleList.getContent());
 
         return SuccessResponse.of(MySavedArticleListRes.builder()
                 .page(page)
                 .total(articleList.getTotalElements())
                 .orderBy(orderBy)
                 .hasNextPage(articleList.hasNext())
-                .articleList(ArticleListRes)
+                .articleList(articleListRes)
                 .build());
     }
 
