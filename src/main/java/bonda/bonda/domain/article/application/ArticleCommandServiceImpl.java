@@ -2,6 +2,7 @@ package bonda.bonda.domain.article.application;
 
 import bonda.bonda.domain.article.domain.Article;
 import bonda.bonda.domain.article.domain.repository.ArticleRepository;
+import bonda.bonda.domain.article.dto.response.DeleteSaveArticleRes;
 import bonda.bonda.domain.article.dto.response.SaveArticleRes;
 import bonda.bonda.domain.articlecase.Articlecase;
 import bonda.bonda.domain.articlecase.repository.ArticlecaseRepository;
@@ -49,4 +50,18 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
                 .build());
 
     }
-}
+
+    @Override
+    @Transactional
+    public SuccessResponse<DeleteSaveArticleRes> deleteSaveArticle(Member member, Long articleId) {
+        // 아티클 조회
+        Article article = articleRepository.findById(articleId).orElseThrow(() -> new BusinessException(INVALID_ARTICLE_ID));
+        // 저장한 아티클 조회
+        Articlecase articlecase = articlecaseRepository.findByMemberAndArticle(member, article).orElseThrow(() -> new BusinessException(SAVED_ARTICLE_NOT_EXIST));
+        articlecaseRepository.delete(articlecase);
+
+        return SuccessResponse.of(DeleteSaveArticleRes.builder()
+                .articleId(articleId)
+                .message(new Message("아티클 저장 삭제가 완료되었습니다.")).build());
+
+    }}

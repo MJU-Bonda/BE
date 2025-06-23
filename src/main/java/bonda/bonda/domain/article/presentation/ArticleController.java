@@ -3,6 +3,7 @@ package bonda.bonda.domain.article.presentation;
 import bonda.bonda.domain.article.application.ArticleCommandService;
 import bonda.bonda.domain.article.application.ArticleReadService;
 import bonda.bonda.domain.article.dto.response.ArticleListByCategoryRes;
+import bonda.bonda.domain.article.dto.response.DeleteSaveArticleRes;
 import bonda.bonda.domain.article.dto.response.SaveArticleRes;
 import bonda.bonda.domain.member.domain.Member;
 import bonda.bonda.global.annotation.LoginMember;
@@ -34,4 +35,9 @@ public class ArticleController implements ArticleApi {
         return ResponseEntity.ok(articleCommandService.saveArticle(member, articleId));
     }
 
+    @Override
+    @DeleteMapping("save/{articleId}")
+    public ResponseEntity<SuccessResponse<DeleteSaveArticleRes>> deleteSaveArticle(@PathVariable("articleId") Long articleId, @LoginMember Member member) {
+        return ResponseEntity.ok(articleCommandService.deleteSaveArticle(member, articleId));
+    }
 }

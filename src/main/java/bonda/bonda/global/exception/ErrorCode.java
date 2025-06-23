@@ -107,6 +107,8 @@ public enum ErrorCode {
 
     INVALID_ARTICLE_ID(400, "A001", "유효하지 않은 아티클 아이디."),
     ALREADY_SAVED_ARTICLE(400, "AS001", "이미 저장한 아티클입니다."),
+    SAVED_ARTICLE_NOT_EXIST(400, "AS002", "저장된 아티클이 없습니다"),
+
 
     INVALID_ARTICLE_CATEGORY(400, "AC001", "유효하지 않은 아티클 카테고리입니다.");
 
