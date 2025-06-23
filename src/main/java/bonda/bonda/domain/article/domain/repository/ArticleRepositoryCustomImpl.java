@@ -142,7 +142,7 @@ public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
                 .where(predicate)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .orderBy(article.id.desc())
+                .orderBy(article.createdAt.desc())
                 .fetch();
     }
 
