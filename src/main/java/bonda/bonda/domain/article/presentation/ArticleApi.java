@@ -3,6 +3,8 @@ package bonda.bonda.domain.article.presentation;
 import bonda.bonda.domain.article.dto.response.ArticleListByCategoryRes;
 import bonda.bonda.domain.article.dto.response.DeleteSaveArticleRes;
 import bonda.bonda.domain.article.dto.response.SaveArticleRes;
+import bonda.bonda.domain.article.dto.response.SearchArticleListRes;
+import bonda.bonda.domain.book.dto.response.SearchBookListRes;
 import bonda.bonda.domain.member.domain.Member;
 import bonda.bonda.global.annotation.LoginMember;
 import bonda.bonda.global.common.SuccessResponse;
@@ -77,6 +79,35 @@ public interface ArticleApi {
     ResponseEntity<SuccessResponse<DeleteSaveArticleRes>> deleteSaveArticle(
             @Parameter(description = "아티클 아이디", example = "123")
             @PathVariable("articleId") Long articleId,
+            @Parameter(hidden = true) // Swagger에 표시하지 않음 (내부에서 주입되는 로그인 사용자 정보)
+            @LoginMember Member member);
+
+
+    @Operation(summary = "아티클 검색", description = "키워드로 아티클을 검색합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200", description = "아티클 검색 성공",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = SearchArticleListRes.class))}
+            ),
+            @ApiResponse(
+                    responseCode = "401", description = "아티클 검색 실패",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorCode.class))}
+            )
+    })
+    @GetMapping("search")
+    ResponseEntity<SuccessResponse<SearchArticleListRes>> searchArticleList(
+            @Parameter(description = "페이지 번호 (0부터 시작)", example = "0")
+            @RequestParam(defaultValue = "0") int page,
+
+            @Parameter(description = "페이지당 항목 수", example = "24")
+            @RequestParam(defaultValue = "24") int size,
+
+            @Parameter(description = "정렬 기준 (예: newest, popularity)", example = "newest")
+            @RequestParam(defaultValue = "newest") String orderBy,
+
+            @Parameter(description = "검색 키워드", example = "자바")
+            @RequestParam String word,
+
             @Parameter(hidden = true) // Swagger에 표시하지 않음 (내부에서 주입되는 로그인 사용자 정보)
             @LoginMember Member member);
 }

@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 @Builder
-@Schema(description = "연관된 아티클 응답 DTO")
+@Schema(description = "아티클 응답 DTO (북마크 X)")
 public class SimpleArticleRes {
     @Schema(description = "아티클 ID", example = "1")
     Long articleId;
