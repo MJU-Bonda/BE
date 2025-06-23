@@ -2,9 +2,11 @@ package bonda.bonda.domain.article.presentation;
 
 import bonda.bonda.domain.article.application.ArticleCommandService;
 import bonda.bonda.domain.article.application.ArticleReadService;
+import bonda.bonda.domain.article.application.ArticleSearchService;
 import bonda.bonda.domain.article.dto.response.ArticleListByCategoryRes;
 import bonda.bonda.domain.article.dto.response.DeleteSaveArticleRes;
 import bonda.bonda.domain.article.dto.response.SaveArticleRes;
+import bonda.bonda.domain.article.dto.response.SearchArticleListRes;
 import bonda.bonda.domain.member.domain.Member;
 import bonda.bonda.global.annotation.LoginMember;
 import bonda.bonda.global.common.SuccessResponse;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 public class ArticleController implements ArticleApi {
     private final ArticleReadService articleReadService;
     private final ArticleCommandService articleCommandService;
+    private final ArticleSearchService articleSearchService;
 
     @Override
     @GetMapping("{articleCategory}")
@@ -40,4 +43,17 @@ public class ArticleController implements ArticleApi {
     public ResponseEntity<SuccessResponse<DeleteSaveArticleRes>> deleteSaveArticle(@PathVariable("articleId") Long articleId, @LoginMember Member member) {
         return ResponseEntity.ok(articleCommandService.deleteSaveArticle(member, articleId));
     }
+
+    @GetMapping("search")
+    public ResponseEntity<SuccessResponse<SearchArticleListRes>> searchArticleList(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "24") int size,
+            @RequestParam(defaultValue = "newest") String orderBy,
+            @RequestParam String word,
+            @LoginMember Member member){
+        return ResponseEntity.ok(articleSearchService.searchArticleList(page, size, orderBy, word, member));
+
+    }
+
+
 }
