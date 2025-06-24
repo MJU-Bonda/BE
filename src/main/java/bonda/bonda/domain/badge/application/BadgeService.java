@@ -130,7 +130,7 @@ public class BadgeService {
         }
 
         MyBadgeListRes myBadgeListRes = MyBadgeListRes.builder()
-                .badgeCount(unlockedBadgeIds.size())
+                .badgeCount(member.getBadgeCount())
                 .viewBadgeList(viewBadgeList)
                 .saveBadgeList(saveBadgeList)
                 .build();
