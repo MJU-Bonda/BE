@@ -4,7 +4,6 @@ import bonda.bonda.domain.article.application.ArticleCommandService;
 import bonda.bonda.domain.article.application.ArticleReadService;
 import bonda.bonda.domain.article.application.ArticleSearchService;
 import bonda.bonda.domain.article.dto.response.*;
-import bonda.bonda.domain.book.dto.response.MySavedBookListRes;
 import bonda.bonda.domain.member.domain.Member;
 import bonda.bonda.global.annotation.LoginMember;
 import bonda.bonda.global.common.SuccessResponse;
