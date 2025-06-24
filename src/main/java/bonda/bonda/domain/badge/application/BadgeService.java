@@ -10,6 +10,8 @@ import bonda.bonda.domain.memberbadge.MemberBadge;
 import bonda.bonda.domain.memberbadge.repository.MemberBadgeRepository;
 import bonda.bonda.domain.recentviewarticle.repository.RecentViewArticleRepository;
 import bonda.bonda.domain.recentviewbook.repository.RecentViewBookRepository;
+import bonda.bonda.global.common.aws.S3Service;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,12 +23,52 @@ import java.util.List;
 @Service
 public class BadgeService {
 
+    private final String BADGES_FOLDERNAME = "badges";
+
     private final BadgeRepository badgeRepository;
     private final MemberBadgeRepository memberBadgeRepository;
     private final RecentViewBookRepository recentViewBookRepository;
     private final RecentViewArticleRepository recentViewArticleRepository;
     private final BookcaseRepository bookcaseRepository;
     private final ArticlecaseRepository articlecaseRepository;
+
+    private final S3Service s3Service;
+
+    private record BadgeInit(String name, String description, String image, ProgressType progressType, Integer goal) {};
+
+    @PostConstruct
+    public void init() {
+        List<BadgeInit> badges = List.of(
+                new BadgeInit("느긋한 발걸음", "도서 상세페이지를 처음 조회하면 획득할 수 있어요.", null, ProgressType.BOOK_VIEW, 1),
+                new BadgeInit("길찾기 초보자", "도서 상세페이지 5개를 조회하면 획득할 수 있어요.", null, ProgressType.BOOK_VIEW, 5),
+                new BadgeInit("발견의 마법사", "도서 상세페이지 10개를 조회하면 획득할 수 있어요.", null, ProgressType.BOOK_VIEW, 10),
+
+                new BadgeInit("첫 장의 설렘", "아티클을 처음 조회하면 획득할 수 있어요.", null, ProgressType.ARTICLE_VIEW, 1),
+                new BadgeInit("페이지 여행자", "아티클 5개를 조회하면 획득할 수 있어요.", null, ProgressType.ARTICLE_VIEW, 5),
+                new BadgeInit("서가 산책", "아티클 10개를 조회하면 획득할 수 있어요.", null, ProgressType.ARTICLE_VIEW, 10),
+
+                new BadgeInit("나의 첫 번째", "도서를 처음 저장하면 획득할 수 있어요.", null, ProgressType.BOOK_SAVE, 1),
+                new BadgeInit("책갈피 수집가", "도서 3개를 저장하면 획득할 수 있어요.", null, ProgressType.BOOK_SAVE, 3),
+                new BadgeInit("서재 채집가", "도서 5개를 저장하면 획득할 수 있어요.", null, ProgressType.BOOK_SAVE, 5),
+
+                new BadgeInit("첫 번째 서랍", "아티클을 처음 저장하면 획득할 수 있어요.", null, ProgressType.ARTICLE_SAVE, 1),
+                new BadgeInit("기억의 조각", "아티클 3개를 저장하면 획득할 수 있어요.", null, ProgressType.ARTICLE_SAVE, 3),
+                new BadgeInit("취향 기록가", "아티클 5개를 저장하면 획득할 수 있어요.", null, ProgressType.ARTICLE_SAVE, 5)
+        );
+
+        for (BadgeInit badge : badges) {
+            if(!badgeRepository.existsByName(badge.name)) {
+                Badge newBadge = Badge.builder()
+                        .name(badge.name)
+                        .description(badge.description)
+                        .image(badge.image)
+                        .progressType(badge.progressType)
+                        .goal(badge.goal)
+                        .build();
+                badgeRepository.save(newBadge);
+            }
+        }
+    }
 
     /**현재 멤버의 상태에 따라 뱃지 생성 및 생성 여부 반환**/
     @Transactional
