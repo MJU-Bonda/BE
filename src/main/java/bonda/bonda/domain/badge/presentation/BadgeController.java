@@ -14,10 +14,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/badges")
-public class BadgeController {
+public class BadgeController implements BadgeApi {
 
     private final BadgeService badgeService;
 
+    @Override
     @GetMapping("/me")
     public ResponseEntity<SuccessResponse<MyBadgeListRes>> getMyBadgeList(@LoginMember Member member) {
         Long memberId = member.getId();
