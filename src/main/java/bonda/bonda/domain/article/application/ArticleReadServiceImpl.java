@@ -2,6 +2,7 @@ package bonda.bonda.domain.article.application;
 
 import bonda.bonda.domain.article.domain.ArticleCategory;
 import bonda.bonda.domain.article.domain.repository.ArticleRepository;
+import bonda.bonda.domain.article.dto.response.ArticleDetailRes;
 import bonda.bonda.domain.article.dto.response.ArticleListByCategoryRes;
 import bonda.bonda.domain.article.dto.response.SimpleArticleResWithBookmarked;
 import bonda.bonda.domain.member.domain.Member;
@@ -32,5 +33,10 @@ public class ArticleReadServiceImpl implements ArticleReadService {
                 .page(page)
                 .hasNextPage(articleList.hasNext())
                 .articleList(articleList.getContent()).build());
+    }
+
+    @Override
+    public SuccessResponse<ArticleDetailRes> getArticleDetail(Long articleId, Member member) {
+        return null;
     }
 }
