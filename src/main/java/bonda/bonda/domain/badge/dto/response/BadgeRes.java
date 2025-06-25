@@ -14,9 +14,6 @@ public class BadgeRes {
     @Schema(type = "String", example = "느긋한 발걸음", description = "뱃지의 이름을 출력합니다.")
     private String name;
 
-    @Schema(type = "String", example = "BOOK_VIEW_1.png", description = "뱃지의 이미지 url을 출력합니다.")
-    private String image;
-
     @Schema(type = "Boolean", example = "true", description = "뱃지 획득 여부를 출력합니다. true면 회원이 뱃지를 획득했음을 의미합니다.")
     private Boolean isUnlocked;
 }
