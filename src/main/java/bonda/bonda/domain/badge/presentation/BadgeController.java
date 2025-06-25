@@ -27,6 +27,7 @@ public class BadgeController implements BadgeApi {
         return ResponseEntity.ok(badgeService.getMyBadgeList(memberId));
     }
 
+    @Override
     @GetMapping("/{badgeId}")
     public ResponseEntity<SuccessResponse<BadgeDetailsRes>> getBadgeDetails(@LoginMember Member member, @PathVariable Long badgeId) {
         Long memberId = member.getId();
