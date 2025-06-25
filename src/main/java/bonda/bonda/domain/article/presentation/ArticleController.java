@@ -50,7 +50,15 @@ public class ArticleController implements ArticleApi {
             @RequestParam String word,
             @LoginMember Member member) {
         return ResponseEntity.ok(articleSearchService.searchArticleList(page, size, orderBy, word, member));
+    }
 
+    @GetMapping("/my-save")
+    public ResponseEntity<SuccessResponse<MySavedArticleListRes>> getMySavedArticleListRes(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "24") int size,
+            @RequestParam(defaultValue = "recentlySaved") String orderBy,
+            @LoginMember Member member) {
+        return ResponseEntity.ok(articleReadService.getMySavedArticleList(page, size, orderBy, member));
     }
 
     @GetMapping("{articleId}")
