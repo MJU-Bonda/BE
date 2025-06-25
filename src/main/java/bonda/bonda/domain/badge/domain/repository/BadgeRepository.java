@@ -9,4 +9,6 @@ import java.util.List;
 public interface BadgeRepository extends JpaRepository<Badge, Long> {
 
     List<Badge> findByProgressType(ProgressType progressType);
+
+    boolean existsByName(String name);
 }

@@ -4,17 +4,27 @@ import bonda.bonda.domain.articlecase.repository.ArticlecaseRepository;
 import bonda.bonda.domain.badge.domain.Badge;
 import bonda.bonda.domain.badge.domain.ProgressType;
 import bonda.bonda.domain.badge.domain.repository.BadgeRepository;
+import bonda.bonda.domain.badge.dto.response.BadgeRes;
+import bonda.bonda.domain.badge.dto.response.MyBadgeListRes;
 import bonda.bonda.domain.bookcase.repository.BookcaseRepository;
 import bonda.bonda.domain.member.domain.Member;
+import bonda.bonda.domain.member.domain.repository.MemberRepository;
 import bonda.bonda.domain.memberbadge.MemberBadge;
 import bonda.bonda.domain.memberbadge.repository.MemberBadgeRepository;
 import bonda.bonda.domain.recentviewarticle.repository.RecentViewArticleRepository;
 import bonda.bonda.domain.recentviewbook.repository.RecentViewBookRepository;
+import bonda.bonda.global.common.SuccessResponse;
+import bonda.bonda.global.common.aws.S3Service;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -22,12 +32,12 @@ import java.util.List;
 public class BadgeService {
 
     private final BadgeRepository badgeRepository;
+    private final MemberRepository memberRepository;
     private final MemberBadgeRepository memberBadgeRepository;
     private final RecentViewBookRepository recentViewBookRepository;
     private final RecentViewArticleRepository recentViewArticleRepository;
     private final BookcaseRepository bookcaseRepository;
     private final ArticlecaseRepository articlecaseRepository;
-
     /**현재 멤버의 상태에 따라 뱃지 생성 및 생성 여부 반환**/
     @Transactional
     public boolean checkAndAwardBadges(Member member, ProgressType progressType) {
@@ -48,5 +58,46 @@ public class BadgeService {
             }
         }
         return isAwarded;
+    }
+
+    public SuccessResponse<MyBadgeListRes> getMyBadgeList(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new BadCredentialsException("해당 아이디를 가진 멤버가 없습니다."));
+
+        List<Badge> allBadge = badgeRepository.findAll();
+        Set<Long> unlockedBadgeIds = memberBadgeRepository.findByMember(member).stream()
+                .map(mb -> mb.getBadge().getId())
+                .collect(Collectors.toSet());
+
+        List<BadgeRes> viewBadgeList = new ArrayList<>();
+        List<BadgeRes> saveBadgeList = new ArrayList<>();
+
+        for (Badge badge : allBadge) {
+            BadgeRes badgeRes = BadgeRes.builder()
+                    .Id(badge.getId())
+                    .name(badge.getName())
+                    .image(badge.getImage())
+                    .isUnlocked(unlockedBadgeIds.contains(badge.getId()))
+                    .build();
+
+            if (isViewType(badge.getProgressType())) {
+                viewBadgeList.add(badgeRes);
+            }
+            else {
+                saveBadgeList.add(badgeRes);
+            }
+        }
+
+        MyBadgeListRes myBadgeListRes = MyBadgeListRes.builder()
+                .badgeCount(member.getBadgeCount())
+                .viewBadgeList(viewBadgeList)
+                .saveBadgeList(saveBadgeList)
+                .build();
+
+        return SuccessResponse.of(myBadgeListRes);
+    }
+
+    private Boolean isViewType(ProgressType progressType) {
+        return progressType == ProgressType.BOOK_VIEW || progressType == ProgressType.ARTICLE_VIEW;
     }
 }

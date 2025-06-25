@@ -5,7 +5,12 @@ import bonda.bonda.domain.member.domain.Member;
 import bonda.bonda.domain.memberbadge.MemberBadge;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
+import java.util.Set;
+
 public interface MemberBadgeRepository extends JpaRepository<MemberBadge, Long> {
 
     boolean existsByMemberAndBadge(Member member, Badge badge);
+
+    List<MemberBadge> findByMember(Member member);
 }
