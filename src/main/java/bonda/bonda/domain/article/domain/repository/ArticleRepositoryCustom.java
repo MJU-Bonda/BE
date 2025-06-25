@@ -10,4 +10,6 @@ public interface ArticleRepositoryCustom {
     Page<SimpleArticleResWithBookmarked> findArticleListByCategory(Pageable pageable, String category, Member member);
 
     Page<Article> searchArticleList(Pageable pageable, String orderBy, String word);
+
+    Page<Article> findMySavedArticleList(Pageable pageable, String orderBy, Member member);
 }

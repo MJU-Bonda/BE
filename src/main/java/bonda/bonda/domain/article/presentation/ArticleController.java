@@ -3,10 +3,7 @@ package bonda.bonda.domain.article.presentation;
 import bonda.bonda.domain.article.application.ArticleCommandService;
 import bonda.bonda.domain.article.application.ArticleReadService;
 import bonda.bonda.domain.article.application.ArticleSearchService;
-import bonda.bonda.domain.article.dto.response.ArticleListByCategoryRes;
-import bonda.bonda.domain.article.dto.response.DeleteSaveArticleRes;
-import bonda.bonda.domain.article.dto.response.SaveArticleRes;
-import bonda.bonda.domain.article.dto.response.SearchArticleListRes;
+import bonda.bonda.domain.article.dto.response.*;
 import bonda.bonda.domain.member.domain.Member;
 import bonda.bonda.global.annotation.LoginMember;
 import bonda.bonda.global.common.SuccessResponse;
@@ -52,7 +49,15 @@ public class ArticleController implements ArticleApi {
             @RequestParam String word,
             @LoginMember Member member){
         return ResponseEntity.ok(articleSearchService.searchArticleList(page, size, orderBy, word, member));
+    }
 
+    @GetMapping("/my-save")
+    public ResponseEntity<SuccessResponse<MySavedArticleListRes>> getMySavedArticleListRes(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "24") int size,
+            @RequestParam(defaultValue = "recentlySaved") String orderBy,
+            @LoginMember Member member) {
+        return ResponseEntity.ok(articleReadService.getMySavedArticleList(page, size, orderBy, member));
     }
 
 

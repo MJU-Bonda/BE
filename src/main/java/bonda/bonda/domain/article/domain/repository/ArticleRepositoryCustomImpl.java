@@ -8,9 +8,12 @@ import bonda.bonda.domain.articlecase.QArticlecase;
 import bonda.bonda.domain.book.domain.QBook;
 import bonda.bonda.domain.bookarticle.QBookArticle;
 import bonda.bonda.domain.member.domain.Member;
+import bonda.bonda.domain.member.domain.QMember;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -31,6 +34,7 @@ public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
     private final QArticlecase articlecase = QArticlecase.articlecase;
     private final QBookArticle bookArticle = QBookArticle.bookArticle;
     private final QBook book = QBook.book;
+    private final QMember member = QMember.member;
 
     @Override
     public Page<SimpleArticleResWithBookmarked> findArticleListByCategory(Pageable pageable, String category, Member loginMember) {
@@ -94,6 +98,15 @@ public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
     }
 
     /**
+     * 요청 멤버가 저장한 아티클 리스트를 반환합니다. 입력되는 정렬 기준에 따라 해당 메서드를 호출합니다.
+     */
+    @Override
+    public Page<Article> findMySavedArticleList(Pageable pageable, String orderBy, Member loginMember) {
+        BooleanBuilder predicate = new BooleanBuilder();
+        return fetchArticlePage(pageable, predicate, orderBy, loginMember);
+    }
+
+    /**
      *
      * orderBy 속성에 따라서 메서드를 분기 처리해줍니다.
      */
@@ -101,10 +114,61 @@ public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
         List<Article> content = switch (orderBy.toLowerCase()) {
             case "popularity" -> // 인기순 정렬
                     fetchArticlesByPopularity(pageable, predicate);
+            case "recentlysaved" -> // 최근 담은 순 정렬
+                    fetchArticlesByRecentlySaved(pageable, predicate, loginMember);
+            case "title" ->// 제목 순 정렬
+                    fetchArticlesByTitle(pageable, predicate, loginMember);
             default -> // newest
                     fetchArticlesByNewest(pageable, predicate);
         };
         return createPage(content, pageable, predicate, loginMember);
+    }
+
+    /**
+     * 로그인한 멤버가 저장한 아티클 리스트를, 아티클 제목 기준 내림차순으로 정렬합니다.
+     */
+    private List<Article> fetchArticlesByTitle(Pageable pageable, BooleanBuilder predicate, Member loginMember) {
+        OrderSpecifier<Integer> customOrder = new CaseBuilder()
+                .when(article.title.substring(0, 1).between("가", "힣")).then(1) // 가나다 1순위
+                .when(article.title.substring(0, 1).between("A", "Z")).then(2) // 영어 대문자 2순위
+                .when(article.title.substring(0, 1).between("a", "z")).then(3) // 영어 소문자 3순위
+                .otherwise(4) //나머지 (특수문자) 4순위
+                .asc();
+
+        return jpaQueryFactory
+                .selectFrom(article)
+                .leftJoin(articlecase).on(articlecase.article.eq(article))
+                .leftJoin(articlecase.member, member) //
+                .where(member.eq(loginMember))
+                .where(predicate)
+                .orderBy(
+                        customOrder, // 커스텀 정렬 순위
+                        article.title.asc(), // 정렬 순위에 대해 제목에 적용
+                        article.createdAt.desc() // 제목 같은 경우 생성된 시점 기준 내림차순
+                )
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+    }
+    /**
+     * 로그인한 멤버가 저장한 아티클 리스트를, 저장한 순 기준 내림차순으로 정렬합니다.
+     */
+    private List<Article> fetchArticlesByRecentlySaved(Pageable pageable, BooleanBuilder predicate, Member loginMember) {
+        List<Tuple> tuples = jpaQueryFactory
+                .select(article, articlecase._super.createdAt.as("savedAt"))  // 저장된 횟수 추가 조회 -> Tuple로 받음
+                .from(article)
+                .leftJoin(articlecase).on(articlecase.article.eq(article))
+                .leftJoin(articlecase.member, member) //
+                .where(member.eq(loginMember))
+                .where(predicate)
+                .orderBy(articlecase._super.createdAt.desc()) // 저장된 아티클 생성 기준 내림차순
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        return tuples.stream()
+                .map(t -> t.get(article))
+                .toList();
     }
 
     /**
@@ -157,8 +221,8 @@ public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
         }
 
         Long total = jpaQueryFactory
-                .select(book.count())
-                .from(book)
+                .select(article.count())
+                .from(article)
                 .leftJoin(articlecase).on(articlecase.article.eq(article))  // bookcase 조인 필수!
                 .where(totalPredicate)
                 .fetchOne();
