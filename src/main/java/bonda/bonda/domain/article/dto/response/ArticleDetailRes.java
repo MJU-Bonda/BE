@@ -14,9 +14,10 @@ public class ArticleDetailRes {
     String title;
     String introduction;
     String content;
-    ArticleCategory articleCategory;
+    String articleCategory;
     Boolean isBookmarked;
     String imageUrl;
+    Boolean isNewBadge;
     List<RelatedBookRes> relatedBookList;
     List<SimpleArticleRes> otherArticleList;
 

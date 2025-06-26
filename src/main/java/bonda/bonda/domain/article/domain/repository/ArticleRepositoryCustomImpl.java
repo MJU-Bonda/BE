@@ -3,9 +3,12 @@ package bonda.bonda.domain.article.domain.repository;
 import bonda.bonda.domain.article.domain.Article;
 import bonda.bonda.domain.article.domain.ArticleCategory;
 import bonda.bonda.domain.article.domain.QArticle;
+import bonda.bonda.domain.article.dto.response.ArticleDetailRes;
+import bonda.bonda.domain.article.dto.response.SimpleArticleRes;
 import bonda.bonda.domain.article.dto.response.SimpleArticleResWithBookmarked;
 import bonda.bonda.domain.articlecase.QArticlecase;
 import bonda.bonda.domain.book.domain.QBook;
+import bonda.bonda.domain.book.dto.response.RelatedBookRes;
 import bonda.bonda.domain.bookarticle.QBookArticle;
 import bonda.bonda.domain.member.domain.Member;
 import bonda.bonda.domain.member.domain.QMember;
@@ -23,7 +26,9 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @Repository
@@ -104,6 +109,114 @@ public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
     public Page<Article> findMySavedArticleList(Pageable pageable, String orderBy, Member loginMember) {
         BooleanBuilder predicate = new BooleanBuilder();
         return fetchArticlePage(pageable, predicate, orderBy, loginMember);
+    }
+
+    @Override
+
+    public ArticleDetailRes getArticleDetail(Long articleId, Member loginMember) {
+        ArticleDetailRes articleDetailRes = getArticleBase(articleId, loginMember);
+        List<RelatedBookRes> relatedBooks = getRelatedBooks(articleId);
+        List<SimpleArticleRes> otherArticleList = getOtherArticleList(articleId);
+        return articleDetailRes.toBuilder()
+                .relatedBookList(relatedBooks)
+                .otherArticleList(otherArticleList)
+                .build();
+    }
+
+    /**
+     * 다른 큐레이션을 조회합니다
+     */
+    private List<SimpleArticleRes> getOtherArticleList(Long articleId) {
+        // 3. 다음 3개 아티클 조회 (순환)
+        List<SimpleArticleRes> afterList = jpaQueryFactory
+                .select(Projections.constructor(SimpleArticleRes.class,
+                        article.id,
+                        article.title,
+                        article.articleCategory.stringValue(),
+                        article.image
+                ))
+                .from(article)
+                .where(article.id.gt(articleId)) //현재보다 greater than
+                .orderBy(article.id.asc())
+                .limit(3)
+                .fetch();
+        // 만약 3개가 아닌 경우 (마지막 인덱스를 지난 경우 1번부터 채우기)
+        int remain = 3 - afterList.size();
+        List<SimpleArticleRes> beforeList = Collections.emptyList();
+
+        if (remain > 0) {
+            beforeList = jpaQueryFactory
+                    .select(Projections.constructor(SimpleArticleRes.class,
+                            article.id,
+                            article.title,
+                            article.articleCategory.stringValue(),
+                            article.image
+                    ))
+                    .from(article)
+                    .where(article.id.lt(articleId)) //less than -> 본인 제외
+                    .orderBy(article.id.asc())
+                    .limit(remain)
+                    .fetch();
+        }
+
+        List<SimpleArticleRes> otherArticleList = new ArrayList<>(afterList);
+        otherArticleList.addAll(beforeList);
+        return otherArticleList;
+    }
+
+    /**
+     * 해당 아티클과 연관된 4개의 도서 정보를 가져옵니다.
+     */
+    private List<RelatedBookRes> getRelatedBooks(Long articleId) {
+        // 2. RelatedBook 리스트 조회
+        return jpaQueryFactory
+                .select(Projections.constructor(RelatedBookRes.class,
+                        book.id,
+                        book.title,
+                        book.writer,
+                        book.bookCategory,
+                        book.introduction,
+                        book.content
+                ))
+                .from(bookArticle)
+                .join(bookArticle.book, book)
+                .where(bookArticle.article.id.eq(articleId))
+                .fetch();
+
+    }
+
+    /**
+     * 아티클의 기본 정보를 가져옵니다. 추후, 연관 아티클 및 도서를 추가합니다
+     */
+    private ArticleDetailRes getArticleBase(Long articleId, Member loginMember) {
+        // 1. 아티클 단건 조회 + 북마크 여부 포함
+        Tuple articleTuple = jpaQueryFactory
+                .select(
+                        article.id,
+                        article.title,
+                        article.introduction,
+                        article.content,
+                        article.articleCategory.stringValue(),
+                        article.image,
+                        articlecase.id.isNotNull()
+                )
+                .from(article)
+                .leftJoin(articlecase)
+                .on(articlecase.member.eq(loginMember).and(articlecase.article.eq(article)))
+                .where(article.id.eq(articleId))
+                .fetchOne();
+
+
+        return ArticleDetailRes.builder()
+                .articleId(articleId)
+                .title(articleTuple.get(article.title))
+                .introduction(articleTuple.get(article.introduction))
+                .content(articleTuple.get(article.content))
+                .articleCategory(articleTuple.get(article.articleCategory.stringValue()))
+                .isBookmarked(articleTuple.get(articlecase.id.isNotNull()))
+                .imageUrl(articleTuple.get(article.image))
+                .build();
+
     }
 
     /**

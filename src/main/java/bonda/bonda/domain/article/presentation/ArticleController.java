@@ -20,11 +20,11 @@ public class ArticleController implements ArticleApi {
     private final ArticleSearchService articleSearchService;
 
     @Override
-    @GetMapping("{articleCategory}")
+    @GetMapping()
     public ResponseEntity<SuccessResponse<ArticleListByCategoryRes>> getArticleListByCategory(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @PathVariable(value = "articleCategory") String category,
+            @RequestParam(value = "articleCategory") String category,
             @LoginMember Member member) {
         return ResponseEntity.ok(articleReadService.getArticleListByCategory(page, size, category, member));
     }
@@ -62,7 +62,7 @@ public class ArticleController implements ArticleApi {
     }
 
     @GetMapping("{articleId}")
-    public ResponseEntity<SuccessResponse<ArticleDetailRes>> getArticleDetail((@PathVariable("articleId") Long articleId, @LoginMember Member member) {
+    public ResponseEntity<SuccessResponse<ArticleDetailRes>> getArticleDetail(@PathVariable("articleId") Long articleId, @LoginMember Member member) {
         return ResponseEntity.ok(articleReadService.getArticleDetail(articleId, member));
     }
 
