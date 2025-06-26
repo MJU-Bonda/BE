@@ -1,12 +1,14 @@
 package bonda.bonda.domain.book.domain.repository;
 
 import bonda.bonda.domain.book.domain.Book;
+import bonda.bonda.domain.book.domain.BookCategory;
 import bonda.bonda.domain.book.dto.response.BookDetailRes;
 import bonda.bonda.domain.member.domain.Member;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 
@@ -26,4 +28,5 @@ public interface BookRepositoryCustom {
 
     List<Book> findRecentBookListBySubject(String subject);
 
+    Map<BookCategory, Long> countBookcaseByCategory(Member member);
 }
