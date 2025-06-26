@@ -1,6 +1,7 @@
 package bonda.bonda.domain.article.presentation;
 
 import bonda.bonda.domain.article.dto.response.*;
+import bonda.bonda.domain.book.dto.response.BookDetailRes;
 import bonda.bonda.domain.book.dto.response.SearchBookListRes;
 import bonda.bonda.domain.member.domain.Member;
 import bonda.bonda.global.annotation.LoginMember;
@@ -129,6 +130,24 @@ public interface ArticleApi {
             @RequestParam(defaultValue = "24") int size,
             @Parameter(description = "정렬 기준 (예: recentlySaved, title)", example = "recentlySaved")
             @RequestParam(defaultValue = "recentlySaved") String orderBy,
+            @Parameter(hidden = true) // Swagger에 표시하지 않음 (내부에서 주입되는 로그인 사용자 정보)
+            @LoginMember Member member);
+
+    @Operation(summary = "아티클 상세 조회", description = "아티클을 상세 조회합니다.. (최근 조회한 아티클 생성 + 뱃지 생성 처리)")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200", description = "아티클 조회 성공",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ArticleDetailRes.class))}
+            ),
+            @ApiResponse(
+                    responseCode = "401", description = "인증 실패",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorCode.class))}
+            )
+    })
+    @GetMapping("{articleId}")
+    ResponseEntity<SuccessResponse<ArticleDetailRes>> getArticleDetail(
+            @Parameter(description = "아티클 ID", example = "21")
+            @PathVariable("articleId") Long articleId,
             @Parameter(hidden = true) // Swagger에 표시하지 않음 (내부에서 주입되는 로그인 사용자 정보)
             @LoginMember Member member);
 }

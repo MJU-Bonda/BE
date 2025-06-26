@@ -52,6 +52,7 @@ public class ArticleController implements ArticleApi {
         return ResponseEntity.ok(articleSearchService.searchArticleList(page, size, orderBy, word, member));
     }
 
+    @Override
     @GetMapping("/my-save")
     public ResponseEntity<SuccessResponse<MySavedArticleListRes>> getMySavedArticleListRes(
             @RequestParam(defaultValue = "0") int page,
@@ -61,6 +62,7 @@ public class ArticleController implements ArticleApi {
         return ResponseEntity.ok(articleReadService.getMySavedArticleList(page, size, orderBy, member));
     }
 
+    @Override
     @GetMapping("{articleId}")
     public ResponseEntity<SuccessResponse<ArticleDetailRes>> getArticleDetail(@PathVariable("articleId") Long articleId, @LoginMember Member member) {
         return ResponseEntity.ok(articleReadService.getArticleDetail(articleId, member));
