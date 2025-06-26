@@ -67,6 +67,8 @@ public class ArticleController implements ArticleApi {
     public ResponseEntity<SuccessResponse<ArticleDetailRes>> getArticleDetail(@PathVariable("articleId") Long articleId, @LoginMember Member member) {
         return ResponseEntity.ok(articleReadService.getArticleDetail(articleId, member));
     }
+
+    @Override
     @GetMapping("/my-recent-views")
     public ResponseEntity<SuccessResponse<RecentViewArticleListRes>> getRecentViewArticleList(
             @RequestParam(defaultValue = "0") int page,
