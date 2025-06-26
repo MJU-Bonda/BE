@@ -35,6 +35,7 @@ public class MemberController implements MemberApi {
         return ResponseEntity.ok(memberService.updateNicknameAndProfileImage(memberId, nickname, profileImage));
     }
 
+    @Override
     @GetMapping("/my-activity")
     public ResponseEntity<SuccessResponse<MyActivityRes>> getMyActivity(@LoginMember Member member) {
         Long memberId = member.getId();
