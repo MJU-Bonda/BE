@@ -106,6 +106,11 @@ public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
         return fetchArticlePage(pageable, predicate, orderBy, loginMember);
     }
 
+    @Override
+    public Page<Article> findRecentViewArticleList(Member member, Pageable pageable) {
+        return null;
+    }
+
     /**
      *
      * orderBy 속성에 따라서 메서드를 분기 처리해줍니다.

@@ -12,4 +12,6 @@ public interface ArticleRepositoryCustom {
     Page<Article> searchArticleList(Pageable pageable, String orderBy, String word);
 
     Page<Article> findMySavedArticleList(Pageable pageable, String orderBy, Member member);
+
+    Page<Article> findRecentViewArticleList(Member member, Pageable pageable);
 }
