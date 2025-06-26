@@ -23,10 +23,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -140,6 +138,24 @@ public class BookRepositoryImpl implements BookRepositoryCustom {
         //페이지 조건 (상위 3개)
         Pageable pageable = PageRequest.of(0, 3);
         return fetchBooksByPublishDateThenRandom(pageable, predicate);
+    }
+
+    @Override
+    public Map<BookCategory, Long> countBookcaseByCategory(Member member) {
+        List<Tuple> results = jpaQueryFactory
+                .select(book.bookCategory, bookcase.count())
+                .from(bookcase)
+                .join(bookcase.book, book)
+                .where(bookcase.member.eq(member))
+                .groupBy(book.bookCategory)
+                .fetch();
+
+        return results.stream()
+                .filter(t -> t.get(book.bookCategory) != null && t.get(bookcase.count()) != null)
+                .collect(Collectors.toMap(
+                        t -> t.get(book.bookCategory),
+                        t -> t.get(bookcase.count())
+                ));
     }
 
 
