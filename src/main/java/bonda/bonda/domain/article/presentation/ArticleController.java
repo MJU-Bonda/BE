@@ -20,11 +20,11 @@ public class ArticleController implements ArticleApi {
     private final ArticleSearchService articleSearchService;
 
     @Override
-    @GetMapping("{articleCategory}")
+    @GetMapping()
     public ResponseEntity<SuccessResponse<ArticleListByCategoryRes>> getArticleListByCategory(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @PathVariable(value = "articleCategory") String category,
+            @RequestParam(value = "articleCategory") String category,
             @LoginMember Member member) {
         return ResponseEntity.ok(articleReadService.getArticleListByCategory(page, size, category, member));
     }
@@ -41,6 +41,7 @@ public class ArticleController implements ArticleApi {
         return ResponseEntity.ok(articleCommandService.deleteSaveArticle(member, articleId));
     }
 
+    @Override
     @GetMapping("search")
     public ResponseEntity<SuccessResponse<SearchArticleListRes>> searchArticleList(
             @RequestParam(defaultValue = "0") int page,
@@ -51,6 +52,7 @@ public class ArticleController implements ArticleApi {
         return ResponseEntity.ok(articleSearchService.searchArticleList(page, size, orderBy, word, member));
     }
 
+    @Override
     @GetMapping("/my-save")
     public ResponseEntity<SuccessResponse<MySavedArticleListRes>> getMySavedArticleListRes(
             @RequestParam(defaultValue = "0") int page,
@@ -60,6 +62,11 @@ public class ArticleController implements ArticleApi {
         return ResponseEntity.ok(articleReadService.getMySavedArticleList(page, size, orderBy, member));
     }
 
+    @Override
+    @GetMapping("{articleId}")
+    public ResponseEntity<SuccessResponse<ArticleDetailRes>> getArticleDetail(@PathVariable("articleId") Long articleId, @LoginMember Member member) {
+        return ResponseEntity.ok(articleReadService.getArticleDetail(articleId, member));
+    }
     @GetMapping("/my-recent-views")
     public ResponseEntity<SuccessResponse<RecentViewArticleListRes>> getRecentViewArticleList(
             @RequestParam(defaultValue = "0") int page,

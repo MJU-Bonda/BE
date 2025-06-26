@@ -190,7 +190,7 @@ public interface BookApi {
 
 
 
-    @Operation(summary = "도서 상세 조회", description = "저장한 도서 목록을 조회합니다. (최근 조회한 도서 생성 + 뱃지 생성 처리)")
+    @Operation(summary = "도서 상세 조회", description = " 도서를 상세 조회합니다. (최근 조회한 도서 생성 + 뱃지 생성 처리)")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200", description = "도서 조회 성공",
