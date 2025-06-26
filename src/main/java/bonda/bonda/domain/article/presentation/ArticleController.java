@@ -47,7 +47,7 @@ public class ArticleController implements ArticleApi {
             @RequestParam(defaultValue = "24") int size,
             @RequestParam(defaultValue = "newest") String orderBy,
             @RequestParam String word,
-            @LoginMember Member member){
+            @LoginMember Member member) {
         return ResponseEntity.ok(articleSearchService.searchArticleList(page, size, orderBy, word, member));
     }
 
@@ -60,5 +60,12 @@ public class ArticleController implements ArticleApi {
         return ResponseEntity.ok(articleReadService.getMySavedArticleList(page, size, orderBy, member));
     }
 
+    @GetMapping("/my-recent-views")
+    public ResponseEntity<SuccessResponse<RecentViewArticleListRes>> getRecentViewArticleList(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "24") int size,
+            @LoginMember Member member) {
+        return ResponseEntity.ok(articleReadService.getRecentViewArticleList(page, size, member));
+    }
 
 }
