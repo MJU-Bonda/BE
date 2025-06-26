@@ -113,10 +113,10 @@ public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
 
     @Override
 
-    public ArticleDetailRes getArticleDetail(Long articleId, Member loginMember) {
-        ArticleDetailRes articleDetailRes = getArticleBase(articleId, loginMember);
-        List<RelatedBookRes> relatedBooks = getRelatedBooks(articleId);
-        List<SimpleArticleRes> otherArticleList = getOtherArticleList(articleId);
+    public ArticleDetailRes getArticleDetail(Article article, Member loginMember) {
+        ArticleDetailRes articleDetailRes = getArticleBase(article, loginMember);
+        List<RelatedBookRes> relatedBooks = getRelatedBooks(article);
+        List<SimpleArticleRes> otherArticleList = getOtherArticleList(article);
         return articleDetailRes.toBuilder()
                 .relatedBookList(relatedBooks)
                 .otherArticleList(otherArticleList)
@@ -126,7 +126,7 @@ public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
     /**
      * 다른 큐레이션을 조회합니다
      */
-    private List<SimpleArticleRes> getOtherArticleList(Long articleId) {
+    private List<SimpleArticleRes> getOtherArticleList(Article persistArticle) {
         // 3. 다음 3개 아티클 조회 (순환)
         List<SimpleArticleRes> afterList = jpaQueryFactory
                 .select(Projections.constructor(SimpleArticleRes.class,
@@ -136,7 +136,7 @@ public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
                         article.image
                 ))
                 .from(article)
-                .where(article.id.gt(articleId)) //현재보다 greater than
+                .where(article.id.gt(persistArticle.getId())) //현재보다 greater than
                 .orderBy(article.id.asc())
                 .limit(3)
                 .fetch();
@@ -153,7 +153,7 @@ public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
                             article.image
                     ))
                     .from(article)
-                    .where(article.id.lt(articleId)) //less than -> 본인 제외
+                    .where(article.id.lt(persistArticle.getId())) //less than -> 본인 제외
                     .orderBy(article.id.asc())
                     .limit(remain)
                     .fetch();
@@ -167,7 +167,7 @@ public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
     /**
      * 해당 아티클과 연관된 4개의 도서 정보를 가져옵니다.
      */
-    private List<RelatedBookRes> getRelatedBooks(Long articleId) {
+    private List<RelatedBookRes> getRelatedBooks(Article persistArticle) {
         // 2. RelatedBook 리스트 조회
         return jpaQueryFactory
                 .select(Projections.constructor(RelatedBookRes.class,
@@ -180,7 +180,7 @@ public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
                 ))
                 .from(bookArticle)
                 .join(bookArticle.book, book)
-                .where(bookArticle.article.id.eq(articleId))
+                .where(bookArticle.article.id.eq(persistArticle.getId()))
                 .fetch();
 
     }
@@ -188,7 +188,7 @@ public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
     /**
      * 아티클의 기본 정보를 가져옵니다. 추후, 연관 아티클 및 도서를 추가합니다
      */
-    private ArticleDetailRes getArticleBase(Long articleId, Member loginMember) {
+    private ArticleDetailRes getArticleBase(Article persistArticle, Member loginMember) {
         // 1. 아티클 단건 조회 + 북마크 여부 포함
         Tuple articleTuple = jpaQueryFactory
                 .select(
@@ -203,12 +203,12 @@ public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
                 .from(article)
                 .leftJoin(articlecase)
                 .on(articlecase.member.eq(loginMember).and(articlecase.article.eq(article)))
-                .where(article.id.eq(articleId))
+                .where(article.id.eq(persistArticle.getId()))
                 .fetchOne();
 
 
         return ArticleDetailRes.builder()
-                .articleId(articleId)
+                .articleId(persistArticle.getId())
                 .title(articleTuple.get(article.title))
                 .introduction(articleTuple.get(article.introduction))
                 .content(articleTuple.get(article.content))

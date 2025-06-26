@@ -78,7 +78,7 @@ public class ArticleReadServiceImpl implements ArticleReadService {
         //아티클 조회 -> 없으면 오류
         Article article = articleRepository.findById(articleId).orElseThrow(() -> new BusinessException(INVALID_ARTICLE_ID));
         // 아티클 정보 조회
-        ArticleDetailRes articleDetailRes = articleRepository.getArticleDetail(articleId, persistMember); //응답에 기본 정보 체우기
+        ArticleDetailRes articleDetailRes = articleRepository.getArticleDetail(article, persistMember); //응답에 기본 정보 체우기
         // 최근 조회 여부 조회 -> 없으면 새로 생성
         RecentViewArticle recentViewArticle = recentViewArticleRepository.findByMemberAndArticle(persistMember, article).orElse(null);
         if (recentViewArticle == null) { // 첫 조회인 경우

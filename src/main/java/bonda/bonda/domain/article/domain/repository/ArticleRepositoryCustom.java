@@ -14,5 +14,5 @@ public interface ArticleRepositoryCustom {
 
     Page<Article> findMySavedArticleList(Pageable pageable, String orderBy, Member member);
 
-    ArticleDetailRes getArticleDetail(Long articleId, Member persistMember);
+    ArticleDetailRes getArticleDetail(Article articleId, Member persistMember);
 }
