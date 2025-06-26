@@ -38,4 +38,8 @@ public class RecentViewArticle extends BaseEntity {
         this.article = article;
         this.viewDate = LocalDateTime.now();
     }
+
+    public void updateViewDate(LocalDateTime viewDate) {
+        this.viewDate = viewDate;
+    }
 }

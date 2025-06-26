@@ -107,6 +107,7 @@ public class BookRepositoryImpl implements BookRepositoryCustom {
                 .where(book.id.eq(bookId))
                 .fetchOne();
         return BookDetailRes.builder()
+                .bookId(bookId)
                 .category(tuple.get(book.bookCategory))
                 .title(tuple.get(book.title))
                 .imageUrl(tuple.get(book.image))
