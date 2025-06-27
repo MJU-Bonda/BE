@@ -11,6 +11,6 @@ import lombok.Data;
 public class DeleteSaveArticleRes {
     @Schema(description = "아티클 ID", example = "123")
     Long articleId;
-    @Schema(description = "응답 메시지", example = "아티클이 성공적으로 삭제되었습니다.")
+//    @Schema(description = "응답 메시지", example = "아티클이 성공적으로 삭제되었습니다.")
     Message message;
 }

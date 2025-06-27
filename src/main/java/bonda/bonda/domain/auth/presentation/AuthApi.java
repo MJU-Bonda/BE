@@ -57,6 +57,17 @@ public interface AuthApi {
     ResponseEntity<SuccessResponse<ReissueRes>> reissueToken(
             @Parameter(description = "RefreshToken을 활용한 AccessToken 재발급에 필요한 Request 입니다.", required = true) @Valid @RequestBody ReissueReq reissueReq);
 
+    @Operation(summary = "로그아웃", description = "회원이 로그아웃을 합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200", description = "로그아웃 성공",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}
+            ),
+            @ApiResponse(
+                    responseCode = "401", description = "로그아웃 실패",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorCode.class))}
+            )
+    })
     @DeleteMapping("/logout")
     ResponseEntity<SuccessResponse<Message>> logout(
             @Parameter(description = "로그아웃을 하려는 회원의 AccessToken을 입력하세요.", required = true) @LoginMember Member member,
