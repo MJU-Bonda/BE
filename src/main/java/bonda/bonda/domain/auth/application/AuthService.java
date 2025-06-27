@@ -1,12 +1,23 @@
 package bonda.bonda.domain.auth.application;
 
+import bonda.bonda.domain.articlecase.Articlecase;
+import bonda.bonda.domain.articlecase.repository.ArticlecaseRepository;
 import bonda.bonda.domain.auth.dto.request.LoginReq;
 import bonda.bonda.domain.auth.dto.request.LogoutReq;
 import bonda.bonda.domain.auth.dto.response.ReissueRes;
+import bonda.bonda.domain.bookcase.Bookcase;
+import bonda.bonda.domain.bookcase.repository.BookcaseRepository;
 import bonda.bonda.domain.member.dto.response.KakaoMemberRes;
 import bonda.bonda.domain.auth.dto.response.LoginRes;
 import bonda.bonda.domain.member.domain.Member;
 import bonda.bonda.domain.member.domain.repository.MemberRepository;
+import bonda.bonda.domain.memberbadge.MemberBadge;
+import bonda.bonda.domain.memberbadge.repository.MemberBadgeRepository;
+import bonda.bonda.domain.recentviewarticle.RecentViewArticle;
+import bonda.bonda.domain.recentviewarticle.repository.RecentViewArticleRepository;
+import bonda.bonda.domain.recentviewbook.RecentViewBook;
+import bonda.bonda.domain.recentviewbook.repository.RecentViewBookRepository;
+import bonda.bonda.domain.searchterm.application.SearchTermService;
 import bonda.bonda.global.common.Message;
 import bonda.bonda.global.common.SuccessResponse;
 import bonda.bonda.global.security.jwt.JwtTokenProvider;
@@ -21,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -34,7 +46,13 @@ public class AuthService {
     private static String BL_AT_PREFIX = "BL_AT_";  // Blacklist에 등록된 AccessToken 접두사
 
     private final KakaoTokenValidator kakaoTokenValidator;
+    private final SearchTermService searchTermService;
     private final MemberRepository memberRepository;
+    private final MemberBadgeRepository memberBadgeRepository;
+    private final BookcaseRepository bookcaseRepository;
+    private final ArticlecaseRepository articlecaseRepository;
+    private final RecentViewBookRepository recentViewBookRepository;
+    private final RecentViewArticleRepository recentViewArticleRepository;
 
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisUtil redisUtil;
@@ -113,6 +131,34 @@ public class AuthService {
 
         Message message = Message.builder()
                 .message("로그아웃이 완료되었습니다.")
+                .build();
+
+        return SuccessResponse.of(message);
+    }
+
+    @Transactional
+    public SuccessResponse<Message> exit(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new BadCredentialsException("해당하는 멤버를 찾을 수 없습니다."));
+
+        // DB 내 멤버 관련 모든 데이터 삭제
+        searchTermService.deleteAllSearchTerm(member.getId());
+        List<Bookcase> bookcaseList = bookcaseRepository.findAllByMember(member);
+        List<Articlecase> articlecaseList = articlecaseRepository.findAllByMember(member);
+        List<RecentViewBook> recentViewBookList = recentViewBookRepository.findAllByMember(member);
+        List<RecentViewArticle> recentViewArticleList = recentViewArticleRepository.findAllByMember(member);
+        List<MemberBadge> memberBadgeList = memberBadgeRepository.findAllByMember(member);
+
+        bookcaseRepository.deleteAll(bookcaseList);
+        articlecaseRepository.deleteAll(articlecaseList);
+        recentViewBookRepository.deleteAll(recentViewBookList);
+        recentViewArticleRepository.deleteAll(recentViewArticleList);
+        memberBadgeRepository.deleteAll(memberBadgeList);
+
+        memberRepository.delete(member);
+
+        Message message = Message.builder()
+                .message("회원 탈퇴가 완료되었습니다.")
                 .build();
 
         return SuccessResponse.of(message);

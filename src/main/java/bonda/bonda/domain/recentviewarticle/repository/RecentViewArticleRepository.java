@@ -14,4 +14,5 @@ public interface RecentViewArticleRepository extends JpaRepository<RecentViewArt
 
     Optional<RecentViewArticle> findByMemberAndArticle(Member member, Article article);
 
+    List<RecentViewArticle> findAllByMember(Member member);
 }
