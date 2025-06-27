@@ -13,6 +13,9 @@ import java.util.List;
 @Builder(toBuilder = true) //추후 조합이 가능하도록 하기 위해
 @Schema(description = "도서 상세 응답 DTO")
 public class BookDetailRes {
+    @Schema(description = "도서 아이디")
+    Long bookId;
+
     @Schema(description = "북마크 여부", example = "true")
     Boolean isBookmarked;
 
