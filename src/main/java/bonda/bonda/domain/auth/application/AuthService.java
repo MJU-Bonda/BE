@@ -1,19 +1,26 @@
 package bonda.bonda.domain.auth.application;
 
 import bonda.bonda.domain.auth.dto.request.LoginReq;
+import bonda.bonda.domain.auth.dto.request.LogoutReq;
 import bonda.bonda.domain.auth.dto.response.ReissueRes;
 import bonda.bonda.domain.member.dto.response.KakaoMemberRes;
 import bonda.bonda.domain.auth.dto.response.LoginRes;
 import bonda.bonda.domain.member.domain.Member;
 import bonda.bonda.domain.member.domain.repository.MemberRepository;
+import bonda.bonda.global.common.Message;
 import bonda.bonda.global.common.SuccessResponse;
 import bonda.bonda.global.security.jwt.JwtTokenProvider;
 import bonda.bonda.infrastructure.redis.RedisUtil;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -83,5 +90,31 @@ public class AuthService {
                 .build();
 
         return SuccessResponse.of(reissueRes);
+    }
+
+    @Transactional
+    public SuccessResponse<Message> logout(Long memberId, LogoutReq logoutReq) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new BadCredentialsException("해당하는 멤버를 찾을 수 없습니다."));
+
+        String findKakaoId = redisUtil.getData(RT_PREFIX + logoutReq.getRefreshToken());
+        if(!member.getKakaoId().equals(findKakaoId))
+            throw new IllegalArgumentException("본인의 RefreshToken만 삭제 가능");
+        redisUtil.deleteData(RT_PREFIX + logoutReq.getRefreshToken());
+
+        // accessToken의 남은 유효시간 계산
+        DecodedJWT decodedJWT = JWT.decode(logoutReq.getAccessToken());
+        Instant expiredAt = decodedJWT.getExpiresAt().toInstant();
+        Instant now = Instant.now();
+        long between = ChronoUnit.SECONDS.between(now, expiredAt);
+
+        // 남는 시간 만료만큼 AccessToken을 Blacklist에 포함
+        redisUtil.setDataExpire(BL_AT_PREFIX + logoutReq.getAccessToken(), "black list token", between);
+
+        Message message = Message.builder()
+                .message("로그아웃이 완료되었습니다.")
+                .build();
+
+        return SuccessResponse.of(message);
     }
 }
