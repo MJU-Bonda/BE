@@ -7,11 +7,14 @@ import bonda.bonda.domain.article.dto.response.ArticleDetailRes;
 import bonda.bonda.domain.article.dto.response.SimpleArticleRes;
 import bonda.bonda.domain.article.dto.response.SimpleArticleResWithBookmarked;
 import bonda.bonda.domain.articlecase.QArticlecase;
+import bonda.bonda.domain.book.domain.Book;
 import bonda.bonda.domain.book.domain.QBook;
 import bonda.bonda.domain.book.dto.response.RelatedBookRes;
 import bonda.bonda.domain.bookarticle.QBookArticle;
 import bonda.bonda.domain.member.domain.Member;
 import bonda.bonda.domain.member.domain.QMember;
+import bonda.bonda.domain.recentviewarticle.QRecentViewArticle;
+import bonda.bonda.domain.recentviewbook.QRecentViewBook;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.OrderSpecifier;
@@ -40,6 +43,7 @@ public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
     private final QBookArticle bookArticle = QBookArticle.bookArticle;
     private final QBook book = QBook.book;
     private final QMember member = QMember.member;
+    private final QRecentViewArticle recentViewArticle = QRecentViewArticle.recentViewArticle;
 
     @Override
     public Page<SimpleArticleResWithBookmarked> findArticleListByCategory(Pageable pageable, String category, Member loginMember) {
@@ -216,6 +220,35 @@ public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
                 .isBookmarked(articleTuple.get(articlecase.id.isNotNull()))
                 .imageUrl(articleTuple.get(article.image))
                 .build();
+
+    }
+
+    @Override
+    public Page<Article> findRecentViewArticleList(Member loginMember, Pageable pageable) {
+        // 1. 조건에 맞는 아티클 리스트 조회 (최근 본 순서대로 정렬, 페이징)
+        List<Article> articleList = jpaQueryFactory
+                .selectFrom(article)
+                .innerJoin(recentViewArticle).on(
+                        recentViewArticle.member.eq(loginMember),
+                        recentViewArticle.article.eq(article)
+                )
+                .orderBy(recentViewArticle.viewDate.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+// 2. 전체 개수 계산 (hasNext() 등 페이지 정보 생성을 위해)
+        Long total = jpaQueryFactory
+                .select(article.count())
+                .from(article)
+                .innerJoin(recentViewArticle).on(
+                        recentViewArticle.article.eq(article),
+                        recentViewArticle.member.eq(loginMember)
+                )
+                .fetchOne();
+
+// 3. Page 객체로 결과 구성 (total 값이 null일 경우 0 처리)
+        return new PageImpl<>(articleList, pageable, total != null ? total : 0);
 
     }
 

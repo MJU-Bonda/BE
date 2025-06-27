@@ -15,4 +15,6 @@ public interface ArticleRepositoryCustom {
     Page<Article> findMySavedArticleList(Pageable pageable, String orderBy, Member member);
 
     ArticleDetailRes getArticleDetail(Article articleId, Member persistMember);
+
+    Page<Article> findRecentViewArticleList(Member member, Pageable pageable);
 }

@@ -2,6 +2,7 @@ package bonda.bonda.domain.article.presentation;
 
 import bonda.bonda.domain.article.dto.response.*;
 import bonda.bonda.domain.book.dto.response.BookDetailRes;
+import bonda.bonda.domain.book.dto.response.RecentViewBookListRes;
 import bonda.bonda.domain.book.dto.response.SearchBookListRes;
 import bonda.bonda.domain.member.domain.Member;
 import bonda.bonda.global.annotation.LoginMember;
@@ -150,4 +151,26 @@ public interface ArticleApi {
             @PathVariable("articleId") Long articleId,
             @Parameter(hidden = true) // Swagger에 표시하지 않음 (내부에서 주입되는 로그인 사용자 정보)
             @LoginMember Member member);
+
+
+    @Operation(summary = "최근 조회한 아티클 목록 조회", description = "최근 조회한 아티클 목록을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200", description = "아티클 조회 성공",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = RecentViewArticleListRes.class))}
+            ),
+            @ApiResponse(
+                    responseCode = "401", description = "인증 실패",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorCode.class))}
+            )
+    })
+    @GetMapping("/my-recent-views")
+    ResponseEntity<SuccessResponse<RecentViewArticleListRes>> getRecentViewArticleList(
+            @Parameter(description = "페이지 번호 (0부터 시작)", example = "0")
+            @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "페이지당 항목 수", example = "24")
+            @RequestParam(defaultValue = "24") int size,
+            @Parameter(hidden = true) // Swagger에 표시하지 않음 (내부에서 주입되는 로그인 사용자 정보)
+            @LoginMember Member member);
+
 }

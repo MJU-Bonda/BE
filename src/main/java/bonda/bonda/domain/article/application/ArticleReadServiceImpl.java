@@ -10,6 +10,7 @@ import bonda.bonda.domain.article.dto.response.SimpleArticleRes;
 import bonda.bonda.domain.article.dto.response.SimpleArticleResWithBookmarked;
 import bonda.bonda.domain.badge.application.BadgeService;
 import bonda.bonda.domain.badge.domain.ProgressType;
+import bonda.bonda.domain.article.dto.response.*;
 import bonda.bonda.domain.member.domain.Member;
 import bonda.bonda.domain.member.domain.repository.MemberRepository;
 import bonda.bonda.domain.recentviewarticle.RecentViewArticle;
@@ -66,6 +67,21 @@ public class ArticleReadServiceImpl implements ArticleReadService {
                 .orderBy(orderBy)
                 .hasNextPage(articleList.hasNext())
                 .articleList(articleListRes)
+                .build());
+    }
+
+    @Override
+    public SuccessResponse<RecentViewArticleListRes> getRecentViewArticleList(int page, int size, Member member) {
+        // 페이지 정보 생성
+        Pageable pageable = PageRequest.of(page, size);
+        // 최근 조회 아티클 리스트 가져오기
+        Page<Article> recentViewArticleList = articleRepository.findRecentViewArticleList(member, pageable);
+        // 아티클 리스트 dto로 변환
+        List<SimpleArticleRes> simpleArticleRes = convertToSimpleArticleListRes(recentViewArticleList.getContent());
+        return SuccessResponse.of(RecentViewArticleListRes.builder()
+                .page(page)
+                .hasNextPage(recentViewArticleList.hasNext())
+                .articleList(simpleArticleRes)
                 .build());
     }
 
