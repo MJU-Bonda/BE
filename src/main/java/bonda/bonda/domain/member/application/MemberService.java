@@ -61,7 +61,7 @@ public class MemberService {
         }
 
         // 프로필 이미지 수정
-        if(!profileImage.isEmpty()) {
+        if(profileImage != null && !profileImage.isEmpty()) {
             if(member.getProfileImage() != null && !member.getProfileImage().isEmpty()) {
                 s3Service.deleteImage(member.getProfileImage());
             }
