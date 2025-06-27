@@ -41,4 +41,11 @@ public class AuthController implements AuthApi {
         Long memberId = member.getId();
         return ResponseEntity.ok(authService.logout(memberId, logoutReq));
     }
+
+    @Override
+    @DeleteMapping("/exit")
+    public ResponseEntity<SuccessResponse<Message>> exit(@LoginMember Member member) {
+        Long memberId = member.getId();
+        return ResponseEntity.ok(authService.exit(memberId));
+    }
 }

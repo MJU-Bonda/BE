@@ -5,6 +5,7 @@ import bonda.bonda.domain.member.domain.Member;
 import bonda.bonda.domain.recentviewbook.RecentViewBook;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface RecentViewBookRepository extends JpaRepository<RecentViewBook, Long> {
@@ -12,4 +13,6 @@ public interface RecentViewBookRepository extends JpaRepository<RecentViewBook, 
     Optional<RecentViewBook> findByMemberAndBook(Member member, Book book);
 
     int countByMember(Member member);
+
+    List<RecentViewBook> findAllByMember(Member member);
 }
