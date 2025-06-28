@@ -370,6 +370,8 @@ public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
                 .select(article.count())
                 .from(article)
                 .leftJoin(articlecase).on(articlecase.article.eq(article))  // bookcase 조인 필수!
+                .leftJoin(bookArticle).on(bookArticle.article.eq(article)) // 아티클 기준 조인
+                .leftJoin(bookArticle.book, book) // 도서 조인
                 .where(totalPredicate)
                 .fetchOne();
 
