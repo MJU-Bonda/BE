@@ -83,7 +83,7 @@ public interface BookApi {
             @Parameter(description = "페이지당 항목 수", example = "24")
             @RequestParam(defaultValue = "24") int size,
 
-            @Parameter(description = "정렬 기준 (예: newest, relevance)", example = "newest")
+            @Parameter(description = "정렬 기준 (예: newest, popularity)", example = "newest")
             @RequestParam(defaultValue = "newest") String orderBy,
 
             @Parameter(description = "검색 키워드", example = "자바")
