@@ -10,7 +10,7 @@ import java.util.List;
 @Builder
 public class RecentSearchRes {
 
-    @Schema(type = "List<String>",
+    @Schema(type = "array",
             example = "[\"최근 검색어 1\",\"최근 검색어 2\",\"최근 검색어 3\",\"최근 검색어 4\",\"최근 검색어 5\"]",
             description = "회원의 최근 검색어 목록 리스트입니다. 최대 5개까지 저장됩니다.")
     private List<String> recentSearchTermList;

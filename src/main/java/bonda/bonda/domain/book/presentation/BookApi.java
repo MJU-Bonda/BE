@@ -83,7 +83,7 @@ public interface BookApi {
             @Parameter(description = "페이지당 항목 수", example = "24")
             @RequestParam(defaultValue = "24") int size,
 
-            @Parameter(description = "정렬 기준 (예: newest, relevance)", example = "newest")
+            @Parameter(description = "정렬 기준 (예: newest, popularity)", example = "newest")
             @RequestParam(defaultValue = "newest") String orderBy,
 
             @Parameter(description = "검색 키워드", example = "자바")
@@ -158,7 +158,9 @@ public interface BookApi {
             )
     })
     @GetMapping("/liked")
-    ResponseEntity<SuccessResponse<LovedBookListRes>> getLovedBookList(@RequestParam(defaultValue = "ALL") String subject);
+    ResponseEntity<SuccessResponse<LovedBookListRes>> getLovedBookList(
+            @Parameter(description = "도서 주제", example = "subject")
+            @RequestParam(defaultValue = "ALL") String subject);
 
 
 
@@ -188,7 +190,7 @@ public interface BookApi {
 
 
 
-    @Operation(summary = "도서 상세 조회", description = "저장한 도서 목록을 조회합니다. (최근 조회한 도서 생성 + 뱃지 생성 처리)")
+    @Operation(summary = "도서 상세 조회", description = " 도서를 상세 조회합니다. (최근 조회한 도서 생성 + 뱃지 생성 처리)")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200", description = "도서 조회 성공",
@@ -205,5 +207,46 @@ public interface BookApi {
             @PathVariable(value = "bookId") Long bookId,
             @Parameter(hidden = true) // Swagger에 표시하지 않음 (내부에서 주입되는 로그인 사용자 정보)
             @LoginMember Member member);
-    }
+
+
+    @Operation(summary = "최근 조회한 도서 목록 조회", description = "최근 조회한 도서 목록을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200", description = "도서 조회 성공",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = RecentViewBookListRes.class))}
+            ),
+            @ApiResponse(
+                    responseCode = "401", description = "인증 실패",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorCode.class))}
+            )
+    })
+    @GetMapping("/my-recent-views")
+    ResponseEntity<SuccessResponse<RecentViewBookListRes>> getRecentViewBookList(
+            @Parameter(description = "페이지 번호 (0부터 시작)", example = "0")
+            @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "페이지당 항목 수", example = "24")
+            @RequestParam(defaultValue = "24") int size,
+            @Parameter(hidden = true) // Swagger에 표시하지 않음 (내부에서 주입되는 로그인 사용자 정보)
+            @LoginMember Member member);
+
+    @Operation(summary = "최근 유행 도서 조회", description = "홈 화면의 방금 도착한 새로운 도서의 목록을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200", description = "도서 조회 성공",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = RecentBookListRes.class))}
+            ),
+            @ApiResponse(
+                    responseCode = "400", description = "잘못된 요청 (잘못된 주제)",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorCode.class))}
+            ),
+            @ApiResponse(
+                    responseCode = "401", description = "인증 실패",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorCode.class))}
+            )
+    })
+    @GetMapping("/recent")
+    ResponseEntity<SuccessResponse<RecentBookListRes>> getJustArrivedBookList(
+            @Parameter(description = "도서 주제", example = "subject")
+            @RequestParam(defaultValue = "ALL") String subject);
+}
 

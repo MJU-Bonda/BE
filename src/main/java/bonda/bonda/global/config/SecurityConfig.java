@@ -28,7 +28,9 @@ public class SecurityConfig {
     // api 연동 WHITE_LIST
     private final String[] WHITE_LIST= {
             "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html",    // swagger
-            "/auth/**", "/books/**", "/members/**"
+            "/auth/login", "/auth/reissue",
+            "/search-term/recommend",
+            "/books/new"
     };
 
     @Bean

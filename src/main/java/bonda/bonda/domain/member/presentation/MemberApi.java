@@ -2,6 +2,7 @@ package bonda.bonda.domain.member.presentation;
 
 import bonda.bonda.domain.auth.dto.response.LoginRes;
 import bonda.bonda.domain.member.domain.Member;
+import bonda.bonda.domain.member.dto.response.MyActivityRes;
 import bonda.bonda.domain.member.dto.response.MyPageInfoRes;
 import bonda.bonda.global.annotation.LoginMember;
 import bonda.bonda.global.common.Message;
@@ -55,4 +56,19 @@ public interface MemberApi {
             @Parameter(description = "닉네임이나 회원 이미지를 변경하고 싶은 회원의 AccessToken을 입력하세요.", required = true) @LoginMember Member member,
             @Parameter(description = "변경할 닉네임을 입력하세요.") @RequestPart(required = false) String nickname,
             @Parameter(description = "변경할 프로필 이미지 파일을 입력하세요.") @RequestPart(required = false) MultipartFile profileImage);
+
+    @Operation(summary = "회원의 내 활동 중 수집한 도서 조회", description = "회원의 내 활동 중 수집한 도서를 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200", description = "회원내 활동 중 수집한 도서 조회 성공",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = MyActivityRes.class))}
+            ),
+            @ApiResponse(
+                    responseCode = "401", description = "회원내 활동 중 수집한 도서 조회 실패",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorCode.class))}
+            )
+    })
+    @GetMapping("/my-activity")
+    ResponseEntity<SuccessResponse<MyActivityRes>> getMyActivity(
+            @Parameter(description = "내 활동 중 수집한 도서를 조회하고 싶은 회원의 AccessToken을 입력하세요.", required = true) @LoginMember Member member);
 }

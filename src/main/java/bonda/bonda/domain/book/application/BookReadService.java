@@ -1,9 +1,6 @@
 package bonda.bonda.domain.book.application;
 
-import bonda.bonda.domain.book.dto.response.BookDetailRes;
-import bonda.bonda.domain.book.dto.response.BookListByCategoryRes;
-import bonda.bonda.domain.book.dto.response.LovedBookListRes;
-import bonda.bonda.domain.book.dto.response.MySavedBookListRes;
+import bonda.bonda.domain.book.dto.response.*;
 import bonda.bonda.domain.member.domain.Member;
 import bonda.bonda.global.common.SuccessResponse;
 
@@ -15,5 +12,9 @@ public interface BookReadService {
     SuccessResponse<MySavedBookListRes> getMySavedBookList(int page, int size, String orderBy, Member member);
 
     SuccessResponse<BookDetailRes> getBookDetail(Long bookId, Member member);
+
+    SuccessResponse<RecentViewBookListRes> getRecentViewBookList(int page, int size,Member member);
+
+    SuccessResponse<RecentBookListRes> getJustArrivedBookList(String subject);
 }
 

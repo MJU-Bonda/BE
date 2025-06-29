@@ -1,9 +1,13 @@
 package bonda.bonda.domain.auth.presentation;
 
 import bonda.bonda.domain.auth.dto.request.LoginReq;
+import bonda.bonda.domain.auth.dto.request.LogoutReq;
 import bonda.bonda.domain.auth.dto.request.ReissueReq;
 import bonda.bonda.domain.auth.dto.response.LoginRes;
 import bonda.bonda.domain.auth.dto.response.ReissueRes;
+import bonda.bonda.domain.member.domain.Member;
+import bonda.bonda.global.annotation.LoginMember;
+import bonda.bonda.global.common.Message;
 import bonda.bonda.global.common.SuccessResponse;
 import bonda.bonda.global.exception.ErrorCode;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,6 +19,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -51,4 +56,35 @@ public interface AuthApi {
     @PostMapping("/reissue")
     ResponseEntity<SuccessResponse<ReissueRes>> reissueToken(
             @Parameter(description = "RefreshToken을 활용한 AccessToken 재발급에 필요한 Request 입니다.", required = true) @Valid @RequestBody ReissueReq reissueReq);
+
+    @Operation(summary = "로그아웃", description = "회원이 로그아웃을 합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200", description = "로그아웃 성공",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}
+            ),
+            @ApiResponse(
+                    responseCode = "401", description = "로그아웃 실패",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorCode.class))}
+            )
+    })
+    @DeleteMapping("/logout")
+    ResponseEntity<SuccessResponse<Message>> logout(
+            @Parameter(description = "로그아웃을 하려는 회원의 AccessToken을 입력하세요.", required = true) @LoginMember Member member,
+            @Parameter(description = "로그아웃 시 필요한 Request 입니다.", required = true) @Valid @RequestBody LogoutReq logoutReq);
+
+    @Operation(summary = "회원 탈퇴", description = "회원이 탈퇴를 합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200", description = "회원 탈퇴 성공",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Message.class))}
+            ),
+            @ApiResponse(
+                    responseCode = "401", description = "회원 탈퇴 실패",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorCode.class))}
+            )
+    })
+    @DeleteMapping("/exit")
+    ResponseEntity<SuccessResponse<Message>> exit(
+            @Parameter(description = "탈퇴하려는 회원의 AccessToken을 입력하세요.", required = true) @LoginMember Member member);
 }

@@ -2,6 +2,7 @@ package bonda.bonda.domain.member.presentation;
 
 import bonda.bonda.domain.member.application.MemberService;
 import bonda.bonda.domain.member.domain.Member;
+import bonda.bonda.domain.member.dto.response.MyActivityRes;
 import bonda.bonda.domain.member.dto.response.MyPageInfoRes;
 import bonda.bonda.global.annotation.LoginMember;
 import bonda.bonda.global.common.Message;
@@ -32,5 +33,12 @@ public class MemberController implements MemberApi {
                                                                                   @RequestPart(required = false) MultipartFile profileImage) {
         Long memberId = member.getId();
         return ResponseEntity.ok(memberService.updateNicknameAndProfileImage(memberId, nickname, profileImage));
+    }
+
+    @Override
+    @GetMapping("/my-activity")
+    public ResponseEntity<SuccessResponse<MyActivityRes>> getMyActivity(@LoginMember Member member) {
+        Long memberId = member.getId();
+        return ResponseEntity.ok(memberService.myActivityBooks(memberId));
     }
 }

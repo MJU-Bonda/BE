@@ -83,4 +83,20 @@ public class BookController implements BookApi {
     public ResponseEntity<SuccessResponse<BookDetailRes>> getBookDetail(@PathVariable(value = "bookId") Long bookId, @LoginMember Member member) {
         return ResponseEntity.ok(bookReadService.getBookDetail(bookId, member));
     }
+
+    @Override
+    @GetMapping("/my-recent-views")
+    public ResponseEntity<SuccessResponse<RecentViewBookListRes>> getRecentViewBookList(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "24") int size,
+            @LoginMember Member member) {
+        return ResponseEntity.ok(bookReadService.getRecentViewBookList(page, size, member));
+    }
+
+    @Override
+    @GetMapping("/recent")
+    public ResponseEntity<SuccessResponse<RecentBookListRes>> getJustArrivedBookList(
+            @RequestParam(defaultValue = "ALL") String subject) {
+        return ResponseEntity.ok(bookReadService.getJustArrivedBookList(subject));
+    }
 }
