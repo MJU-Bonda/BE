@@ -9,4 +9,5 @@ import java.util.List;
 public interface BookRepository extends JpaRepository<Book, Long> , BookRepositoryCustom {
 
 
+    boolean existsByTitle(String title);
 }

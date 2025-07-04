@@ -29,6 +29,7 @@ import org.springframework.web.client.RestTemplate;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static bonda.bonda.global.exception.ErrorCode.*;
 
@@ -45,96 +46,116 @@ public class BookCommandServiceImpl implements BookCommandService {
     private final MemberRepository memberRepository;
     private final BadgeService badgeService;
 
+    //도서 카테고리별, 도서 저장 개수
+    private static final Map<BookCategory, Integer> maxResultsPerCategory = Map.of(
+            BookCategory.PHOTO_BOOK, 20,
+            BookCategory.MAGAZINE, 20,
+            BookCategory.ART_BOOK, 500,
+            BookCategory.ESSAY, 10,
+            BookCategory.ILLUSTRATION, 500,
+            BookCategory.NOVEL, 10,
+            BookCategory.CARTOON, 10,
+            BookCategory.POEM, 100
+    );
+
+
     @Transactional
     public SuccessResponse<Message> saveBookFromAladin(SaveBookFromAladinReq request) {
         List<Book> bookList = new ArrayList<>();
 
-        try {
-            // 요청 url 설정
-            String url = String.format(
-                    "%s&ttbkey=%s&CategoryId=%s",
-                    aladinConfig.getListBaseUrl(),
-                    aladinConfig.getTtbKey(),
-                    request.getCategoryId()
-            );
+        // 카테고리 꺼내기
+        BookCategory categoryEnum = BookCategory.valueOf(request.getCategory().toUpperCase());
+        // 카테고리별 저장 개수
+        int maxResults = maxResultsPerCategory.getOrDefault(categoryEnum, 10);
+        int MAX_PAGE_SIZE = 50; //알라딘 api는 페이지당 최대 100개만 저장 가능
+        // 누적 책의 수((page - 1) * MAX_PAGE_SIZE)가 목표 maxResults 보다 작을 때까지 실행
+        for (int page = 1; (page - 1) * MAX_PAGE_SIZE < maxResults; page++) {
+            // 만약 현재가 마지막 페이지인경우, maxResult 계산
+            int fetchCount = Math.min(MAX_PAGE_SIZE, maxResults - (page - 1) * MAX_PAGE_SIZE);
 
-
-            String response = restTemplate.getForObject(url, String.class);
-            JsonNode root = objectMapper.readTree(response);
-            JsonNode items = root.path("item");
-            log.info("Url :"+url);
-
-            for (JsonNode item : items) {
-                //json 응답 객체 변환
-                BookListDto Listdto = new BookListDto();
-                Listdto.setPublishDate(LocalDate.parse(item.path("pubDate").asText()));
-                Listdto.setImage(item.path("cover").asText());
-                Listdto.setPublisher(item.path("publisher").asText());
-                Listdto.setTitle(item.path("title").asText());
-                Listdto.setWriter(item.path("author").asText());
-
-                //isbn으로 상세 정보 추가 요청
-                String isbn = item.path("isbn").asText();
-
-                log.info("title :"+ Listdto.getTitle());
-                // 상세 정보 요청 url 설정
-                String detailUrl = String.format(
-                        "%s&ItemId=%s&ttbkey=%s",
-                        aladinConfig.getDetailBaseUrl(),
-                        isbn,
-                        aladinConfig.getTtbKey()
+            try {
+                String url = String.format(
+                        "%s&ttbkey=%s&CategoryId=%s&MaxResults=%d&start=%d",
+                        aladinConfig.getListBaseUrl(),
+                        aladinConfig.getTtbKey(),
+                        request.getCategoryId(),
+                        fetchCount,
+                        page
                 );
-                log.info("detailUrl :"+detailUrl);
-                try {
-                    String detailResponse = restTemplate.getForObject(detailUrl, String.class);
-                    JsonNode detailRoot = objectMapper.readTree(detailResponse);
-                    JsonNode detailItem = detailRoot.path("item").get(0);
 
-                    //json 응답 객체 변환
-                    BookDto bookDto = new BookDto();
-                    bookDto.setPage(detailItem.path("subInfo").path("itemPage").asInt());
-                    bookDto.setWidth(detailItem.path("subInfo").path("packing").path("sizeWidth").asLong());
-                    bookDto.setHeight(detailItem.path("subInfo").path("packing").path("sizeHeight").asLong());
-                    bookDto.setPage(detailItem.path("subInfo").path("itemPage").asInt());
-                    bookDto.setContent(detailItem.path("description").asText());
-                    log.info(bookDto.toString());
+                log.info("Aladin API 호출 URL: {}", url);
 
-                    //도서 객체 생성
-                    Book book = Book.builder()
-                            .image(Listdto.getImage())
-                            .title(Listdto.getTitle())
-                            .writer(Listdto.getWriter())
-                            .publisher(Listdto.getPublisher())
-                            .size(String.format("%d * %dmm", bookDto.getWidth(), bookDto.getHeight()))
-                            .publishDate(Listdto.getPublishDate())
-                            .page(bookDto.getPage())
-                            .content(bookDto.getContent())
-                            .bookCategory(BookCategory.valueOf(request.getCategory().toUpperCase()))
-                            .build();
-                    bookList.add(book);
+                String response = restTemplate.getForObject(url, String.class);
+                JsonNode root = objectMapper.readTree(response);
+                JsonNode items = root.path("item");
 
-                } catch (Exception e) {
-                    log.warn("상세 정보 조회 실패: isbn=" + isbn, e);
+                for (JsonNode item : items) {
+                    // 기본 정보 파싱
+                    BookListDto listDto = new BookListDto();
+                    listDto.setPublishDate(LocalDate.parse(item.path("pubDate").asText()));
+                    listDto.setImage(item.path("cover").asText());
+                    listDto.setPublisher(item.path("publisher").asText());
+                    listDto.setTitle(item.path("title").asText());
+                    listDto.setWriter(item.path("author").asText());
+
+                    String isbn = item.path("isbn").asText();
+                    // 도서 db 중복 체크
+                    log.info("도서 제목: {}", listDto.getTitle());
+                    if (bookRepository.existsByTitle((item.path("title").asText()))) {
+                        log.info("중복 도서 제목으로 건너뜀: {}", item.path("title").asText());
+                        continue;
+                    }
+
+                    try {
+                        String detailUrl = String.format(
+                                "%s&ItemId=%s&ttbkey=%s",
+                                aladinConfig.getDetailBaseUrl(),
+                                isbn,
+                                aladinConfig.getTtbKey()
+                        );
+
+                        String detailResponse = restTemplate.getForObject(detailUrl, String.class);
+                        JsonNode detailItem = objectMapper.readTree(detailResponse)
+                                .path("item").get(0);
+
+                        BookDto bookDto = new BookDto();
+                        bookDto.setPage(detailItem.path("subInfo").path("itemPage").asInt());
+                        bookDto.setWidth(detailItem.path("subInfo").path("packing").path("sizeWidth").asLong());
+                        bookDto.setHeight(detailItem.path("subInfo").path("packing").path("sizeHeight").asLong());
+                        bookDto.setContent(detailItem.path("description").asText());
+
+                        Book book = Book.builder()
+                                .image(listDto.getImage())
+                                .title(listDto.getTitle())
+                                .writer(listDto.getWriter())
+                                .publisher(listDto.getPublisher())
+                                .size(String.format("%d * %dmm", bookDto.getWidth(), bookDto.getHeight()))
+                                .publishDate(listDto.getPublishDate())
+                                .page(bookDto.getPage())
+                                .content(bookDto.getContent())
+                                .bookCategory(categoryEnum)
+                                .build();
+
+                        bookList.add(book);
+
+                    } catch (Exception e) {
+                        log.warn("상세 정보 조회 실패 (isbn: {})", isbn, e);
+                    }
                 }
 
+            } catch (Exception e) {
+                log.error("알라딘 API 호출 또는 파싱 실패 (page: {})", page, e);
             }
-            if (!bookList.isEmpty()) {
-                bookRepository.saveAll(bookList); // DB에 저장
-                return SuccessResponse.of(new Message("도서가 정상적으로 저장되었습니다."));
-            } else {
-                return SuccessResponse.of(new Message("저장된 도서가 없습니다."));
-            }
-
-
-        } catch (Exception e) {
-            log.error("알라딘 API 호출 또는 파싱 실패", e);
-            return SuccessResponse.of(new Message("알라딘 API 호출 또는 파싱에 실패했습니다."));
-
         }
 
-
+        if (!bookList.isEmpty()) {
+            bookRepository.saveAll(bookList);
+            log.info("카테고리 [{}]에 도서 {}권 저장 완료", request.getCategory(), bookList.size());
+            return SuccessResponse.of(new Message("도서가 정상적으로 저장되었습니다."));
+        } else {
+            return SuccessResponse.of(new Message("저장된 도서가 없습니다."));
+        }
     }
-
     @Transactional
     public SuccessResponse<SaveBookRes> saveBook(Member member, Long bookId) {
         // 멤버 조회 -> 영속 상태로 조회
