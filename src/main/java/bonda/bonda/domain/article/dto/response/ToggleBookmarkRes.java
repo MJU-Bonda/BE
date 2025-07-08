@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 @Builder
 @Schema(description = "아티클 저장 응답 DTO")
-public class SaveArticleRes {
+public class ToggleBookmarkRes {
     @Schema(description = "아티클 ID", example = "123")
     Long articleId;
 

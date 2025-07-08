@@ -12,7 +12,6 @@ public interface ArticlecaseRepository extends JpaRepository<Articlecase, Long> 
 
     int countByMember(Member member);
 
-    boolean existsByMemberAndArticle(Member persistMember, Article article);
 
     Optional<Articlecase> findByMemberAndArticle(Member persistMember, Article article);
 

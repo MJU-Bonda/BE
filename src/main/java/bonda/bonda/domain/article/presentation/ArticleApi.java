@@ -44,11 +44,11 @@ public interface ArticleApi {
             @LoginMember Member member);
 
 
-    @Operation(summary = "아티클 저장", description = "아티클을 저장합니다..")
+    @Operation(summary = "아티클 저장 및 저장 취소", description = "아티클을 저장 또는 저장을 취소합니다")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200", description = "아티클 저장 성공",
-                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = SaveArticleRes.class))}
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ToggleBookmarkRes.class))}
             ),
             @ApiResponse(
                     responseCode = "400", description = "아티클 저장 실패",
@@ -56,7 +56,7 @@ public interface ArticleApi {
             )
     })
     @PostMapping("save/{articleId}")
-    ResponseEntity<SuccessResponse<SaveArticleRes>> saveArticle(
+    ResponseEntity<SuccessResponse<ToggleBookmarkRes>> toggleArticleBookmark(
             @Parameter(description = "아티클 아이디", example = "123")
             @PathVariable("articleId") Long articleId,
             @Parameter(hidden = true) // Swagger에 표시하지 않음 (내부에서 주입되는 로그인 사용자 정보)
