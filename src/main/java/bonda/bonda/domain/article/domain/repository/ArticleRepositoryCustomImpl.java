@@ -220,6 +220,7 @@ public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
                 .articleCategory(articleTuple.get(article.articleCategory.stringValue()))
                 .isBookmarked(articleTuple.get(articlecase.id.isNotNull()))
                 .imageUrl(articleTuple.get(article.image))
+                .isNewBadge(false) // false 디폴트, 추후 확인
                 .build();
 
     }
