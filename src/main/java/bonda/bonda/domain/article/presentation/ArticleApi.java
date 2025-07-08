@@ -63,23 +63,7 @@ public interface ArticleApi {
             @LoginMember Member member);
 
 
-    @Operation(summary = "아티클 저장 삭제", description = "저장한 아티클을 삭제합니다.")
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200", description = "아티클 삭제 성공",
-                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = DeleteSaveArticleRes.class))}
-            ),
-            @ApiResponse(
-                    responseCode = "400", description = "아티클 저장 실패",
-                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorCode.class))}
-            )
-    })
-    @DeleteMapping("save/{articleId}")
-    ResponseEntity<SuccessResponse<DeleteSaveArticleRes>> deleteSaveArticle(
-            @Parameter(description = "아티클 아이디", example = "123")
-            @PathVariable("articleId") Long articleId,
-            @Parameter(hidden = true) // Swagger에 표시하지 않음 (내부에서 주입되는 로그인 사용자 정보)
-            @LoginMember Member member);
+
 
 
     @Operation(summary = "아티클 검색", description = "키워드로 아티클을 검색합니다.")

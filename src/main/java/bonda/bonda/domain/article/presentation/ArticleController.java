@@ -35,11 +35,6 @@ public class ArticleController implements ArticleApi {
         return ResponseEntity.ok(articleCommandService.saveArticle(member, articleId));
     }
 
-    @Override
-    @DeleteMapping("save/{articleId}")
-    public ResponseEntity<SuccessResponse<DeleteSaveArticleRes>> deleteSaveArticle(@PathVariable("articleId") Long articleId, @LoginMember Member member) {
-        return ResponseEntity.ok(articleCommandService.deleteSaveArticle(member, articleId));
-    }
 
     @Override
     @GetMapping("search")
