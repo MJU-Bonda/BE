@@ -180,7 +180,8 @@ public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
                         book.writer,
                         book.bookCategory,
                         book.introduction,
-                        book.content
+                        book.content,
+                        book.image
                 ))
                 .from(bookArticle)
                 .join(bookArticle.book, book)
