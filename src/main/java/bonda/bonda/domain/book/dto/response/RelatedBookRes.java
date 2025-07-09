@@ -23,4 +23,6 @@ public class RelatedBookRes {
     String introduction;
     @Schema(description = "도서 본문")
     String content;
+    @Schema(description = "도서 이미지 URL")
+    String imageUrl;
 }
