@@ -57,12 +57,6 @@ public class BookController implements BookApi {
     }
 
     @Override
-    @DeleteMapping("/save/{bookId}")
-    public ResponseEntity<SuccessResponse<DeleteSaveBookRes>> deleteBook(@PathVariable(value = "bookId") Long bookId, @LoginMember Member member) {
-        return ResponseEntity.ok(bookCommandService.deleteSaveBook(member, bookId));
-    }
-
-    @Override
     @GetMapping("/liked")
     public ResponseEntity<SuccessResponse<LovedBookListRes>> getLovedBookList(@RequestParam(defaultValue = "ALL") String subject) {
         return ResponseEntity.ok(bookReadService.getLovedBookList(subject));

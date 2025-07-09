@@ -1,7 +1,6 @@
 package bonda.bonda.domain.book.application;
 
 import bonda.bonda.domain.book.dto.request.SaveBookFromAladinReq;
-import bonda.bonda.domain.book.dto.response.DeleteSaveBookRes;
 import bonda.bonda.domain.book.dto.response.SaveBookRes;
 import bonda.bonda.domain.member.domain.Member;
 import bonda.bonda.global.common.Message;
@@ -12,5 +11,4 @@ public interface BookCommandService {
 
     SuccessResponse<SaveBookRes> saveBook(Member member, Long bookId);
 
-    SuccessResponse<DeleteSaveBookRes> deleteSaveBook(Member member, Long bookId);
 }

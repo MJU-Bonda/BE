@@ -8,7 +8,6 @@ import bonda.bonda.domain.book.domain.repository.BookRepository;
 import bonda.bonda.domain.book.dto.aladin.BookDto;
 import bonda.bonda.domain.book.dto.aladin.BookListDto;
 import bonda.bonda.domain.book.dto.request.SaveBookFromAladinReq;
-import bonda.bonda.domain.book.dto.response.DeleteSaveBookRes;
 import bonda.bonda.domain.book.dto.response.SaveBookRes;
 import bonda.bonda.domain.bookcase.Bookcase;
 import bonda.bonda.domain.bookcase.repository.BookcaseRepository;
@@ -178,20 +177,4 @@ public class BookCommandServiceImpl implements BookCommandService {
                 .message(new Message("도서 저장이 완료되었습니다!")).build());
     }
 
-    @Transactional
-    public SuccessResponse<DeleteSaveBookRes> deleteSaveBook(Member member, Long bookId) {
-        // 멤버 조회 -> 영속 상태로 조회
-        Member persistMember = memberRepository.findByKakaoId(member.getKakaoId()).orElseThrow(() -> new BusinessException(INVALID_MEMBER));
-        // 도서 조회
-        Book book = bookRepository.findById(bookId).orElseThrow(() -> new BusinessException(INVALID_BOOK_Id));
-        // 저장된 도서 조회
-        Bookcase bookcase = bookcaseRepository.findByMemberAndBook(persistMember, book).orElseThrow(() -> new BusinessException(SAVED_BOOK_NOT_EXIST));
-        bookcaseRepository.delete(bookcase);
-        persistMember.minusSaveCount();
-
-        return SuccessResponse.of(DeleteSaveBookRes.builder()
-                .bookId(bookId)
-                .message(new Message("도서 저장 삭제가 완료되었습니다.")).build());
-
-    }
 }
