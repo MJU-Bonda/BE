@@ -31,15 +31,10 @@ public class ArticleController implements ArticleApi {
 
     @Override
     @PostMapping("save/{articleId}")
-    public ResponseEntity<SuccessResponse<SaveArticleRes>> saveArticle(@PathVariable("articleId") Long articleId, @LoginMember Member member) {
-        return ResponseEntity.ok(articleCommandService.saveArticle(member, articleId));
+    public ResponseEntity<SuccessResponse<ToggleBookmarkRes>> toggleArticleBookmark(@PathVariable("articleId") Long articleId, @LoginMember Member member) {
+        return ResponseEntity.ok(articleCommandService.toggleArticleBookmark(member, articleId));
     }
 
-    @Override
-    @DeleteMapping("save/{articleId}")
-    public ResponseEntity<SuccessResponse<DeleteSaveArticleRes>> deleteSaveArticle(@PathVariable("articleId") Long articleId, @LoginMember Member member) {
-        return ResponseEntity.ok(articleCommandService.deleteSaveArticle(member, articleId));
-    }
 
     @Override
     @GetMapping("search")

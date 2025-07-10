@@ -8,12 +8,12 @@ import lombok.Data;
 @Data
 @Builder
 @Schema(description = "도서 저장 응답 DTO")
-public class SaveBookRes {
+public class ToggleBookSaveRes {
     @Schema(description = "도서 ID", example = "123")
     Long bookId;
 
     @Schema(description = "응답 메시지", example = "도서가 성공적으로 저장되었습니다.")
-    Message message;
+    String message;
 
     @Schema(description = "도서 저장으로 인한 신규 배지 생성 여부", example = "true")
     Boolean isNewBadge;

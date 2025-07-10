@@ -8,3 +8,4 @@ public interface BookSearchService {
     SuccessResponse<SearchBookListRes> searchBookList(Integer page, Integer size, String orderBy, String word, Member member);
 
 }
+ 
