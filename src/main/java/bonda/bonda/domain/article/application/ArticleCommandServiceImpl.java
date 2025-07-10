@@ -9,7 +9,6 @@ import bonda.bonda.domain.badge.application.BadgeService;
 import bonda.bonda.domain.badge.domain.ProgressType;
 import bonda.bonda.domain.member.domain.Member;
 import bonda.bonda.domain.member.domain.repository.MemberRepository;
-import bonda.bonda.global.common.Message;
 import bonda.bonda.global.common.SuccessResponse;
 import bonda.bonda.global.exception.BusinessException;
 import lombok.AllArgsConstructor;

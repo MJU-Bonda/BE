@@ -1,5 +1,8 @@
 package bonda.bonda.domain.book.application;
 
+import bonda.bonda.domain.article.domain.Article;
+import bonda.bonda.domain.article.dto.response.ToggleBookmarkRes;
+import bonda.bonda.domain.articlecase.Articlecase;
 import bonda.bonda.domain.badge.application.BadgeService;
 import bonda.bonda.domain.badge.domain.ProgressType;
 import bonda.bonda.domain.book.domain.Book;
@@ -8,8 +11,7 @@ import bonda.bonda.domain.book.domain.repository.BookRepository;
 import bonda.bonda.domain.book.dto.aladin.BookDto;
 import bonda.bonda.domain.book.dto.aladin.BookListDto;
 import bonda.bonda.domain.book.dto.request.SaveBookFromAladinReq;
-import bonda.bonda.domain.book.dto.response.DeleteSaveBookRes;
-import bonda.bonda.domain.book.dto.response.SaveBookRes;
+import bonda.bonda.domain.book.dto.response.ToggleBookSaveRes;
 import bonda.bonda.domain.bookcase.Bookcase;
 import bonda.bonda.domain.bookcase.repository.BookcaseRepository;
 import bonda.bonda.domain.member.domain.Member;
@@ -30,6 +32,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static bonda.bonda.global.exception.ErrorCode.*;
 
@@ -156,42 +159,39 @@ public class BookCommandServiceImpl implements BookCommandService {
             return SuccessResponse.of(new Message("저장된 도서가 없습니다."));
         }
     }
+
     @Transactional
-    public SuccessResponse<SaveBookRes> saveBook(Member member, Long bookId) {
+    public SuccessResponse<ToggleBookSaveRes> toggleBookSaveRes(Member member, Long bookId) {
         // 멤버 조회 -> 영속 상태로 조회
         Member persistMember = memberRepository.findByKakaoId(member.getKakaoId()).orElseThrow(() -> new BusinessException(INVALID_MEMBER));
         // 도서 조회
         Book book = bookRepository.findById(bookId).orElseThrow(() -> new BusinessException(INVALID_BOOK_Id));
-        // 이미 저장한 도서인지 확인
-        if (bookcaseRepository.existsByMemberAndBook(persistMember, book)) {
-            throw new BusinessException(ALREADY_SAVED_BOOK);
+        // 저장한 도서 조회 있으면 삭제 없으면 생성
+        Optional<Bookcase> existing = bookcaseRepository.findByMemberAndBook(persistMember, book);
+        //존재하는 경우 -> 삭제
+        if (existing.isPresent()) {
+            bookcaseRepository.delete(existing.get());
+            persistMember.minusSaveCount();   // 멤버 저장 도서 수 감소 -> 더티 체크
+            return SuccessResponse.of(ToggleBookSaveRes.builder()
+                    .bookId(bookId)
+                    .isNewBadge(false)
+                    .message("도서 저장이 해제되었습니다.")
+                    .build());
         }
-        // 저장된 도서 생성
+        //존재하지 않는 경우
+        // 저장한 도서 생성
         Bookcase bookcase = new Bookcase(persistMember, book);
         // 멤버 저장 도서 수 증가 -> 더티 체크
         persistMember.plusSaveCount();
+        // 저장
         bookcaseRepository.save(bookcase);
-
-        return SuccessResponse.of(SaveBookRes.builder()
+        return SuccessResponse.of(ToggleBookSaveRes.builder()
                 .bookId(bookId)
-                .isNewBadge(badgeService.checkAndAwardBadges(persistMember, ProgressType.BOOK_SAVE)) //저장에 따른 뱃지 생성
-                .message(new Message("도서 저장이 완료되었습니다!")).build());
+                .isNewBadge(badgeService.checkAndAwardBadges(persistMember, ProgressType.BOOK_SAVE))
+                .message("도서 저장이 완료되었습니다.")
+                .build());
+
     }
 
-    @Transactional
-    public SuccessResponse<DeleteSaveBookRes> deleteSaveBook(Member member, Long bookId) {
-        // 멤버 조회 -> 영속 상태로 조회
-        Member persistMember = memberRepository.findByKakaoId(member.getKakaoId()).orElseThrow(() -> new BusinessException(INVALID_MEMBER));
-        // 도서 조회
-        Book book = bookRepository.findById(bookId).orElseThrow(() -> new BusinessException(INVALID_BOOK_Id));
-        // 저장된 도서 조회
-        Bookcase bookcase = bookcaseRepository.findByMemberAndBook(persistMember, book).orElseThrow(() -> new BusinessException(SAVED_BOOK_NOT_EXIST));
-        bookcaseRepository.delete(bookcase);
-        persistMember.minusSaveCount();
 
-        return SuccessResponse.of(DeleteSaveBookRes.builder()
-                .bookId(bookId)
-                .message(new Message("도서 저장 삭제가 완료되었습니다.")).build());
-
-    }
 }

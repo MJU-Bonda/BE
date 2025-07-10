@@ -94,14 +94,14 @@ public interface BookApi {
 
 
 
-    @Operation(summary = "도서 저장", description = "사용자가 특정 도서를 저장합니다.")
+    @Operation(summary = "도서 저장 및 저장 취소", description = "사용자가 특정 도서를 저장 또는 저장을 취소합니다.")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200", description = "도서 저장 성공",
-                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = SaveBookRes.class))}
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ToggleBookSaveRes.class))}
             ),
             @ApiResponse(
-                    responseCode = "400", description = "잘못된 요청 (이미 저장된 도서 등)",
+                    responseCode = "400", description = "도서 저장 실패",
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorCode.class))}
             ),
             @ApiResponse(
@@ -110,31 +110,7 @@ public interface BookApi {
             )
     })
     @PostMapping("/save/{bookId}")
-    ResponseEntity<SuccessResponse<SaveBookRes>> saveBook(
-            @Parameter(description = "도서 ID", example = "123")
-            @PathVariable(value = "bookId") Long bookId,
-            @Parameter(hidden = true) // Swagger에 표시하지 않음 (내부에서 주입되는 로그인 사용자 정보)
-            @LoginMember Member member);
-
-
-
-    @Operation(summary = "도서 저장 삭제", description = "사용자가 특정 도서를 저장 목록에서 삭제합니다.")
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200", description = "도서 저장 삭제 성공",
-                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = DeleteSaveBookRes.class))}
-            ),
-            @ApiResponse(
-                    responseCode = "400", description = "잘못된 요청 (이미 저장된 도서 등)",
-                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorCode.class))}
-            ),
-            @ApiResponse(
-                    responseCode = "401", description = "인증 실패",
-                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorCode.class))}
-            )
-    })
-    @DeleteMapping("/save/{bookId}")
-    ResponseEntity<SuccessResponse<DeleteSaveBookRes>> deleteBook(
+    ResponseEntity<SuccessResponse<ToggleBookSaveRes>> toggleBookSave(
             @Parameter(description = "도서 ID", example = "123")
             @PathVariable(value = "bookId") Long bookId,
             @Parameter(hidden = true) // Swagger에 표시하지 않음 (내부에서 주입되는 로그인 사용자 정보)
@@ -168,7 +144,7 @@ public interface BookApi {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200", description = "도서 조회 성공",
-                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = SaveBookRes.class))}
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = MySavedBookListRes.class))}
             ),
             @ApiResponse(
                     responseCode = "401", description = "인증 실패",

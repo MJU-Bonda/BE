@@ -51,15 +51,9 @@ public class BookController implements BookApi {
 
     @Override
     @PostMapping("/save/{bookId}")
-    public ResponseEntity<SuccessResponse<SaveBookRes>> saveBook(@PathVariable(value = "bookId") Long bookId, @LoginMember Member member) {
-        return ResponseEntity.ok(bookCommandService.saveBook(member, bookId));
+    public ResponseEntity<SuccessResponse<ToggleBookSaveRes>> toggleBookSave(@PathVariable(value = "bookId") Long bookId, @LoginMember Member member) {
+        return ResponseEntity.ok(bookCommandService.toggleBookSaveRes(member, bookId));
 
-    }
-
-    @Override
-    @DeleteMapping("/save/{bookId}")
-    public ResponseEntity<SuccessResponse<DeleteSaveBookRes>> deleteBook(@PathVariable(value = "bookId") Long bookId, @LoginMember Member member) {
-        return ResponseEntity.ok(bookCommandService.deleteSaveBook(member, bookId));
     }
 
     @Override
