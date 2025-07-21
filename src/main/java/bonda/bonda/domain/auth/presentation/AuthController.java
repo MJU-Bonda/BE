@@ -36,7 +36,7 @@ public class AuthController implements AuthApi {
     }
 
     @Override
-    @DeleteMapping("/logout")
+    @PostMapping("/logout")
     public ResponseEntity<SuccessResponse<Message>> logout(@LoginMember Member member, @Valid @RequestBody LogoutReq logoutReq) {
         Long memberId = member.getId();
         return ResponseEntity.ok(authService.logout(memberId, logoutReq));
