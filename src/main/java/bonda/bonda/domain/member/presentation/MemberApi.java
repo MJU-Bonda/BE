@@ -38,7 +38,7 @@ public interface MemberApi {
     })
     @GetMapping("/my-page")
     ResponseEntity<SuccessResponse<MyPageInfoRes>> getMyPageInfo(
-            @Parameter(description = "마이페이지 회원 정보를 조회하고 싶은 회원의 AccessToken을 입력하세요.", required = true) @LoginMember Member member);
+            @Parameter(hidden = true) @LoginMember Member member);
 
     @Operation(summary = "회원의 닉네임 또는 프로필 이미지 변경", description = "회원의 닉네임이나 프로필 이미지를 변경합니다.")
     @ApiResponses(value = {
@@ -53,7 +53,7 @@ public interface MemberApi {
     })
     @PutMapping(value = "/update/nickname-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     ResponseEntity<SuccessResponse<Message>> updateNicknameAndProfileImage(
-            @Parameter(description = "닉네임이나 회원 이미지를 변경하고 싶은 회원의 AccessToken을 입력하세요.", required = true) @LoginMember Member member,
+            @Parameter(hidden = true) @LoginMember Member member,
             @Parameter(description = "변경할 닉네임을 입력하세요.") @RequestPart(required = false) String nickname,
             @Parameter(description = "변경할 프로필 이미지 파일을 입력하세요.") @RequestPart(required = false) MultipartFile profileImage);
 
@@ -70,5 +70,5 @@ public interface MemberApi {
     })
     @GetMapping("/my-activity")
     ResponseEntity<SuccessResponse<MyActivityRes>> getMyActivity(
-            @Parameter(description = "내 활동 중 수집한 도서를 조회하고 싶은 회원의 AccessToken을 입력하세요.", required = true) @LoginMember Member member);
+            @Parameter(hidden = true) @LoginMember Member member);
 }
