@@ -68,9 +68,9 @@ public interface AuthApi {
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorCode.class))}
             )
     })
-    @DeleteMapping("/logout")
+    @PostMapping("/logout")
     ResponseEntity<SuccessResponse<Message>> logout(
-            @Parameter(description = "로그아웃을 하려는 회원의 AccessToken을 입력하세요.", required = true) @LoginMember Member member,
+            @Parameter(hidden = true) @LoginMember Member member,
             @Parameter(description = "로그아웃 시 필요한 Request 입니다.", required = true) @Valid @RequestBody LogoutReq logoutReq);
 
     @Operation(summary = "회원 탈퇴", description = "회원이 탈퇴를 합니다.")
@@ -86,5 +86,5 @@ public interface AuthApi {
     })
     @DeleteMapping("/exit")
     ResponseEntity<SuccessResponse<Message>> exit(
-            @Parameter(description = "탈퇴하려는 회원의 AccessToken을 입력하세요.", required = true) @LoginMember Member member);
+            @Parameter(hidden = true) @LoginMember Member member);
 }

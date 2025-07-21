@@ -37,7 +37,7 @@ public interface SearchTermApi {
     })
     @GetMapping("/recent")
     ResponseEntity<SuccessResponse<RecentSearchRes>> getRecentSearchTerms(
-            @Parameter(description = "최근 검색어 목록을 조회하고 싶은 회원의 AccessToken을 입력하세요.", required = true) @LoginMember Member member);
+            @Parameter(hidden = true) @LoginMember Member member);
 
     @Operation(summary = "최근 검색어 개별 삭제", description = "회원의 최근 검색어를 개별로 삭제합니다.")
     @ApiResponses(value = {
@@ -52,7 +52,7 @@ public interface SearchTermApi {
     })
     @DeleteMapping("/recent")
     ResponseEntity<SuccessResponse<Message>> deleteSearchTerm(
-            @Parameter(description = "최근 검색어를 삭제하고 싶은 회원의 AccessToken을 입력하세요.", required = true) @LoginMember Member member,
+            @Parameter(hidden = true) @LoginMember Member member,
             @Parameter(description = "삭제할 최근 검색어를 parameter 값으로 입력하세요.") @RequestParam String keyword);
 
     @Operation(summary = "최근 검색어 전체 삭제", description = "회원의 최근 검색어 전체를 삭제합니다.")
@@ -68,7 +68,7 @@ public interface SearchTermApi {
     })
     @DeleteMapping("/recent/all")
     ResponseEntity<SuccessResponse<Message>> deleteAllSearchTerm(
-            @Parameter(description = "최근 검색어를 삭제하고 싶은 회원의 AccessToken을 입력하세요.", required = true) @LoginMember Member member);
+            @Parameter(hidden = true) @LoginMember Member member);
 
     @Operation(summary = "추천 키워드 목록 조회", description = "서비스에서 제공하는 추천 키워드 목록을 조회합니다.")
     @ApiResponses(value = {
@@ -97,5 +97,5 @@ public interface SearchTermApi {
     })
     @PatchMapping("/auto-save")
     ResponseEntity<SuccessResponse<ModifyAutoSave>> modifyAutoSave(
-            @Parameter(description = "검색어 자동 저장 여부를 변경하고 싶은 회원의 AccessToken을 입력하세요.", required = true) @LoginMember Member member);
+            @Parameter(hidden = true) @LoginMember Member member);
 }
