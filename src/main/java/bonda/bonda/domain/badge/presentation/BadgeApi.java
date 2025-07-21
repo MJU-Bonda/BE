@@ -34,7 +34,7 @@ public interface BadgeApi {
     })
     @GetMapping("/me")
     ResponseEntity<SuccessResponse<MyBadgeListRes>> getMyBadgeList(
-            @Parameter(description = "소유한 뱃지 목록을 확인하고 싶은 멤버의 accessToken을 입력하시오.", required = true) @LoginMember Member member);
+            @Parameter(hidden = true) @LoginMember Member member);
 
     @Operation(summary = "회원 뱃지 상세 조회", description = "회원이 소유한 뱃지의 상세 내용을 조회합니다.")
     @ApiResponses(value = {
@@ -49,6 +49,6 @@ public interface BadgeApi {
     })
     @GetMapping("/{badgeId}")
     ResponseEntity<SuccessResponse<BadgeDetailsRes>> getBadgeDetails(
-            @Parameter(description = "뱃지 상세 목록을 확인하고 싶은 멤버의 accessToken을 입력하시오.", required = true) @LoginMember Member member,
+            @Parameter(hidden = true) @LoginMember Member memberr,
             @Parameter(description = "상세 조회하고 싶은 뱃지 아이디 번호를 입력하시오.", required = true) @PathVariable Long badgeId);
 }
