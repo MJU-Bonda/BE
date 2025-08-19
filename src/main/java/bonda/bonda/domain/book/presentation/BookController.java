@@ -4,11 +4,13 @@ import bonda.bonda.domain.book.application.BookCommandService;
 import bonda.bonda.domain.book.application.BookReadService;
 import bonda.bonda.domain.book.application.BookSearchService;
 import bonda.bonda.domain.book.dto.request.SaveBookFromAladinReq;
+import bonda.bonda.domain.book.dto.request.SaveBookLocalReq;
 import bonda.bonda.domain.book.dto.response.*;
 import bonda.bonda.domain.member.domain.Member;
 import bonda.bonda.global.annotation.LoginMember;
 import bonda.bonda.global.common.Message;
 import bonda.bonda.global.common.SuccessResponse;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -92,5 +94,11 @@ public class BookController implements BookApi {
     public ResponseEntity<SuccessResponse<RecentBookListRes>> getJustArrivedBookList(
             @RequestParam(defaultValue = "ALL") String subject) {
         return ResponseEntity.ok(bookReadService.getJustArrivedBookList(subject));
+    }
+
+    @PostMapping("/new/local")
+    @Operation(hidden = true)
+    public ResponseEntity<SuccessResponse<SaveBookLocalRes>> saveBookLocal(@Valid @RequestBody SaveBookLocalReq req) {
+        return ResponseEntity.ok(bookCommandService.saveBookLocal(req));
     }
 }

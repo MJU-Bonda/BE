@@ -30,7 +30,7 @@ public class SecurityConfig {
             "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html",    // swagger
             "/auth/login", "/auth/reissue",
             "/search-term/recommend",
-            "/books/new"
+            "/books/new", "/books/new/local"
     };
 
     @Bean
