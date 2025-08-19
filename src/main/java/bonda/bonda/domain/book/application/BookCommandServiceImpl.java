@@ -11,6 +11,8 @@ import bonda.bonda.domain.book.domain.repository.BookRepository;
 import bonda.bonda.domain.book.dto.aladin.BookDto;
 import bonda.bonda.domain.book.dto.aladin.BookListDto;
 import bonda.bonda.domain.book.dto.request.SaveBookFromAladinReq;
+import bonda.bonda.domain.book.dto.request.SaveBookLocalReq;
+import bonda.bonda.domain.book.dto.response.SaveBookLocalRes;
 import bonda.bonda.domain.book.dto.response.ToggleBookSaveRes;
 import bonda.bonda.domain.bookcase.Bookcase;
 import bonda.bonda.domain.bookcase.repository.BookcaseRepository;
@@ -193,5 +195,29 @@ public class BookCommandServiceImpl implements BookCommandService {
 
     }
 
+    @Override
+    @Transactional
+    public SuccessResponse<SaveBookLocalRes> saveBookLocal(SaveBookLocalReq req) {
+        Book book = Book.builder()
+                .image(req.getImage())
+                .title(req.getTitle())
+                .writer(req.getWriter())
+                .publisher(req.getPublisher())
+                .size(req.getSize())
+                .publishDate(req.getPublishDate())
+                .page(req.getPage())
+                .introduction(req.getIntroduction())
+                .content(req.getContent())
+                .bookCategory(req.getBookCategory())
+                .subject(req.getSubject())
+                .build();
 
+        bookRepository.save(book);
+
+        return SuccessResponse.of(SaveBookLocalRes.builder()
+                        .id(book.getId())
+                        .title(book.getTitle())
+                        .image(book.getImage())
+                        .build());
+    }
 }
