@@ -95,6 +95,12 @@ public class BookCommandServiceImpl implements BookCommandService {
                 JsonNode items = root.path("item");
 
                 for (JsonNode item : items) {
+                    boolean isAdultInList = item.path("adult").asBoolean(false);
+                    if(isAdultInList) {
+                        log.info("성인 등급 도서 저장 제외: {}", item.path("title").asText());
+                        continue;
+                    }
+
                     // 기본 정보 파싱
                     BookListDto listDto = new BookListDto();
                     listDto.setPublishDate(LocalDate.parse(item.path("pubDate").asText()));
