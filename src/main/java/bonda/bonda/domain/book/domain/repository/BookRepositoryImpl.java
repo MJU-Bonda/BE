@@ -92,7 +92,7 @@ public class BookRepositoryImpl implements BookRepositoryCustom {
                 .select(
                         book.bookCategory,
                         book.title,
-                        book.image,
+                        book.highImage,
                         book.writer,
                         book.publisher,
                         book.size,
@@ -110,7 +110,7 @@ public class BookRepositoryImpl implements BookRepositoryCustom {
                 .bookId(bookId)
                 .category(tuple.get(book.bookCategory))
                 .title(tuple.get(book.title))
-                .imageUrl(tuple.get(book.image))
+                .imageUrl(tuple.get(book.highImage))
                 .author(tuple.get(book.writer))
                 .publisher(tuple.get(book.publisher))
                 .plateType(tuple.get(book.size))
