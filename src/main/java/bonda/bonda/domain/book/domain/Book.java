@@ -21,6 +21,8 @@ public class Book extends BaseEntity {
 
     private String image;
 
+    private String highImage;
+
     private String title;
 
     private String writer;
