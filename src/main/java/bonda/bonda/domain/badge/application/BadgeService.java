@@ -127,11 +127,11 @@ public class BadgeService {
 
         String description = isUnlock
                 ? (badge.getGoal() == 1
-                    ? String.format("첫 %s를 %s하여 '%s' 뱃지를 획득했어요",
+                    ? String.format("첫 %s %s하여 '%s' 뱃지를 획득했어요",
                                     getContentType(badge.getProgressType()),
                                     getCategory(badge.getProgressType()),
                                     badge.getName())
-                    : String.format("%d개의 %s를 %s하여 '%s' 뱃지를 획득했어요",
+                    : String.format("%d개의 %s %s하여 '%s' 뱃지를 획득했어요",
                                     badge.getGoal(),
                                     getContentType(badge.getProgressType()),
                                     getCategory(badge.getProgressType()),
@@ -154,8 +154,8 @@ public class BadgeService {
 
     private String getContentType(ProgressType progressType) {
         return switch (progressType) {
-            case BOOK_VIEW, BOOK_SAVE -> "도서";
-            case ARTICLE_VIEW, ARTICLE_SAVE -> "아티클";
+            case BOOK_VIEW, BOOK_SAVE -> "도서를";
+            case ARTICLE_VIEW, ARTICLE_SAVE -> "아티클을";
         };
     }
 
