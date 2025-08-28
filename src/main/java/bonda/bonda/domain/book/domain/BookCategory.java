@@ -18,7 +18,7 @@ public enum BookCategory {
     PHOTO_BOOK("PHOTO_BOOK", "사진집"),
     ART_BOOK("ART_BOOK","아트북"),
     ILLUSTRATION("ILLUSTRATION","일러스트북"),
-    MAGAZINE("MAGAZINE", "메거진");
+    MAGAZINE("MAGAZINE", "매거진");
 
     final private String key;
     final private String value;
