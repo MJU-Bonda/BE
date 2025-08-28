@@ -57,6 +57,7 @@ public class MemberService {
 
         // 닉네임 수정
         if(nickname != null && !nickname.trim().isEmpty()) {
+            validateNicknameLength(nickname);
             member.updateNickname(nickname);
         }
 
@@ -74,6 +75,13 @@ public class MemberService {
                 .build();
 
         return SuccessResponse.of(message);
+    }
+
+    private void validateNicknameLength(String nickname) {
+        int length = nickname.codePointCount(0, nickname.length());
+        if(length > 10) {
+            throw new IllegalArgumentException("닉네임은 최대 10개까지 가능합니다. 현재 글자수(" + length + ")");
+        }
     }
 
     public SuccessResponse<MyActivityRes> myActivityBooks(Long memberId) {
